@@ -10,7 +10,6 @@ from sklearn.cluster import KMeans
 
 R_BIN_PATH = 'C:\\Program Files\\R\\R-4.0.4\\bin'
 
-
 input_matrix = []
 filenames = []
 eigenvectors_c = []
