@@ -5,6 +5,8 @@ from AverageWindow import Ui_AverageWindow
 from main import Spectra_Anal
 import os
 import glob
+import matplotlib.pyplot as plt
+
 
 class Ui_SecondWindow(object):
     def Signal_Csv(self, main):
@@ -57,6 +59,16 @@ class Ui_SecondWindow(object):
         self.Average_all.setEnabled(True)
         self.Patients_button.setEnabled(True)
         self.clearData.setEnabled(True)
+        der1 = self.main.derivative_function(self.main.all_samples_for_deivative)
+        der2 = self.main.derivative_function(der1)
+        print(der1, der2)
+
+        fig = plt.figure()
+        ax = plt.axes()
+        x = der1[0]
+        # ax.plot(x, der1[2])
+        ax.plot(x, der2[2])
+        plt.show()
         # self.main.show_graphic_of_eigenvalues_and_pc(self)
 
 

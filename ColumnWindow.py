@@ -1,8 +1,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+import matplotlib
+matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class Ui_ColumnWindow(object):
@@ -53,14 +56,12 @@ class Ui_ColumnWindow(object):
             elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="black", marker="o", s=50)
                 # plt.annotate(filenames[index], (x[index], y[index]))
-        # self.colGraph.canvas.ax.mouse_init()
         self.colGraph.canvas.draw()
 
 
     def plotLoadings(self):
         self.colGraph.canvas.ax.clear()
         self.colGraph.canvas.ax.scatter(self.x, self.y, color="black", marker="o", s=12)
-        # self.colGraph.canvas.ax.mouse_init()
         self.colGraph.canvas.draw()
 
 
@@ -75,8 +76,11 @@ class Ui_ColumnWindow(object):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="green")
             elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="black")
+        for angle in range(0, 360):
+            self.colGraph.canvas.ax.view_init(0, angle)
         self.colGraph.canvas.draw()
-        self.colGraph.canvas.ax.mouse_init()
+
+
 
 
     def setupUi(self, ColumnWindow, SecondWindow):
@@ -151,6 +155,10 @@ class MplCanvas(Canvas):
         Canvas.__init__(self, self.fig)
         Canvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         Canvas.updateGeometry(self)
+        if signal == 3:
+            self.ax.mouse_init()
+        else:
+            pass
 
 
 class MplWidget(QtWidgets.QWidget):

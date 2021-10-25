@@ -66,9 +66,17 @@ class Spectra_Anal:
     def cutting_spectra_and_finding_ratio(self):
         diapason = [[1600, 1650], [1580, 1600], [1550, 1580], [1500, 1510], [1440, 1470]]
         baseline = [1720, 2000]
+        range_for_derivative = [1600, 1700]
         max_min = []
         self.ratio = []
         self.waves = []
+        self.all_samples_for_deivative = []
+
+        wfd = self.input_df_list[0].drop(self.input_df_list[0][self.input_df_list[0][0] <= range_for_derivative[0]].index)
+        wfd = wfd.drop(wfd[wfd[0] >= range_for_derivative[1]].index)
+        wfd = wfd[0].values.astype('float')
+        self.all_samples_for_deivative.append(wfd)
+
         for input_df in self.input_df_list:
             # Создание диапазона для построения графиков сравнений
             intensities = []
@@ -84,6 +92,11 @@ class Spectra_Anal:
             base = base.drop(base[base[0] >= baseline[1]].index)
             base = base[1].values.astype('float')
             coefficient = np.mean(base)
+            rfd = input_df.drop(input_df[input_df[0] <= range_for_derivative[0]].index)
+            rfd = rfd.drop(rfd[rfd[0] >= range_for_derivative[1]].index)
+            afd = rfd[1].values.astype('float')
+            # wfd = rfd[0].values.astype('float')
+            self.all_samples_for_deivative.append(afd)
 
             # находим макс. и мин., вычитаем из них среднее по базовой линии
             max_min_temp = []
@@ -460,3 +473,30 @@ class Spectra_Anal:
         for element in filenames_tmp:
             self.filenames.append(element[0])
         print('[PCA]: сохраненное исследование прочитано')
+
+
+    def derivative_function(self, data_for_derivative):
+        all_derivatives = []
+        all_derivatives.append(data_for_derivative[0])
+        for sample in range(len(data_for_derivative)):
+            sample_derivative = []
+            if sample == 0:
+                pass
+            else:
+                for point in range(len(data_for_derivative[sample])):
+                    if point == 0:
+                        deriv = 0.5 * ((data_for_derivative[sample][point+1] - data_for_derivative[sample][point]) /
+                                       (data_for_derivative[0][point+1] - data_for_derivative[0][point]))
+                        sample_derivative.append(deriv)
+                    elif point == len(data_for_derivative[1]) - 1:
+                        deriv = 0.5 * ((data_for_derivative[sample][point] - data_for_derivative[sample][point-1]) /
+                                       (data_for_derivative[0][point] - data_for_derivative[0][point-1]))
+                        sample_derivative.append(deriv)
+                    elif (point != 0) and (point != len(data_for_derivative[1]) - 1):
+                        deriv = 0.5 * (((data_for_derivative[sample][point+1] - data_for_derivative[sample][point]) /
+                                        (data_for_derivative[0][point+1] - data_for_derivative[0][point])) +
+                                       ((data_for_derivative[sample][point] - data_for_derivative[sample][point-1]) /
+                                        (data_for_derivative[0][point] - data_for_derivative[0][point-1])))
+                        sample_derivative.append(deriv)
+                all_derivatives.append(np.array(sample_derivative))
+        return all_derivatives
