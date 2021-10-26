@@ -17,6 +17,7 @@ class Ui_AverageWindow(object):
         self.AverageWindow.close()
         self.SecondWindow.show()
 
+
     def setupUi(self, AverageWindow, SecondWindow):
         self.AverageWindow = AverageWindow
         self.SecondWindow = SecondWindow
@@ -87,7 +88,13 @@ class MplCanvas(Canvas):
 class RatioWidget(QtWidgets.QWidget):
     def __init__(self, main, parent=None):
         self.main = main
-        self.result_d, self.result_p, self.result_n, self.error_radial = self.main.show_graphic_of_average_ratio()
+        error_radial = [0.5, 0.4, 0.001, 0.07, 0.01, 0.001, 0.001, 0.2, 0.03, 0.001]
+        for i in range(len(error_radial)):
+            error_radial[i] = error_radial[i] * self.main.normal[i]
+        self.result_d = np.append(self.main.result_d, self.main.result_d[0])
+        self.result_p = np.append(self.main.result_p, self.main.result_p[0])
+        self.result_n = np.append(self.main.result_n, self.main.result_n[0])
+        self.error_radial = np.append(error_radial, error_radial[0])
         QtWidgets.QWidget.__init__(self, parent)
         self.canvas = MplCanvas('polar')
         self.toolbar = NavigationToolbar(self.canvas, self, True)
@@ -116,7 +123,9 @@ class RatioWidget(QtWidgets.QWidget):
 class WaveWidget(QtWidgets.QWidget):
     def __init__(self, main, parent=None):
         self.main = main
-        g1, g2, g3 = self.main.show_graphic_of_average_waves()
+        g1 = self.main.result_waves_d
+        g2 = self.main.result_waves_p
+        g3 = self.main.result_waves_n
         QtWidgets.QWidget.__init__(self, parent)
         self.canvas = MplCanvas('errorbar')
         self.toolbar = NavigationToolbar(self.canvas, self, True)

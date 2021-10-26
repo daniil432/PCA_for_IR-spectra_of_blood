@@ -5,13 +5,14 @@ matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d import Axes3D
 
 
 class Ui_ColumnWindow(object):
-    def Signal(self, main, signal):
+    def Signal(self, main, signal, actual_t, actual_p):
         self.main = main
         self.signal = signal
+        self.t_matrix = actual_t
+        self.p_matrix = actual_p
 
 
     def Home(self):
@@ -34,7 +35,6 @@ class Ui_ColumnWindow(object):
                 self.x, self.y, self.filenames = self.main.show_graphic_of_t_matrix(Columns=self.Columns)
                 self.plotScores()
             elif self.signal == 2:
-                self.x, self.y = self.main.show_graphic_of_p_matrix(Columns=self.Columns)
                 self.plotLoadings()
             elif self.signal == 3:
                 self.x, self.y, self.z, self.filenames = self.main.show_graphic_3D(Columns=self.Columns)
@@ -60,6 +60,12 @@ class Ui_ColumnWindow(object):
 
 
     def plotLoadings(self):
+        first_column = self.Columns[0]
+        second_column = self.Columns[1]
+        first_column -= 1
+        second_column -= 1
+        self.x = self.p_matrix[:, first_column]
+        self.y = self.p_matrix[:, second_column]
         self.colGraph.canvas.ax.clear()
         self.colGraph.canvas.ax.scatter(self.x, self.y, color="black", marker="o", s=12)
         self.colGraph.canvas.draw()
@@ -76,11 +82,9 @@ class Ui_ColumnWindow(object):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="green")
             elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="black")
-        for angle in range(0, 360):
-            self.colGraph.canvas.ax.view_init(0, angle)
+        """for angle in range(0, 360):
+            self.colGraph.canvas.ax.view_init(0, angle)"""
         self.colGraph.canvas.draw()
-
-
 
 
     def setupUi(self, ColumnWindow, SecondWindow):

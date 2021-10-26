@@ -25,6 +25,10 @@ class Ui_SecondWindow(object):
         self.Average_all.setEnabled(True)
         self.Patients_button.setEnabled(True)
         self.clearData.setEnabled(True)
+        self.clearData.setEnabled(True)
+        self.SpectraButton.setEnabled(True)
+        self.Derivative_1_Button.setEnabled(True)
+        self.Derivative_2_Button.setEnabled(True)
 
 
     def acceptParams(self):
@@ -50,8 +54,8 @@ class Ui_SecondWindow(object):
         self.main.cutting_spectra_and_finding_ratio()
         self.main.sorting_ratio_and_waves_by_names()
         self.main.calculate_ratio()
-        self.main.calculate_and_sort_eigenvalues_and_vectors()
-        self.main.calculate_t_and_p_matrix()
+        self.main.calculate_and_sort_eigenvalues_and_vectors(self.main.input_matrix)
+        self.t_matrix_pca, self.p_matrix_pca = self.main.calculate_t_and_p_matrix()
         self.main.write_eigenvalues_and_eigenvectors_in_files(research_name=research_name)
         self.Scores_2D.setEnabled(True)
         self.Scores_3D.setEnabled(True)
@@ -59,17 +63,47 @@ class Ui_SecondWindow(object):
         self.Average_all.setEnabled(True)
         self.Patients_button.setEnabled(True)
         self.clearData.setEnabled(True)
-        der1 = self.main.derivative_function(self.main.all_samples_for_deivative)
-        der2 = self.main.derivative_function(der1)
-        print(der1, der2)
+        self.SpectraButton.setEnabled(True)
+        self.Derivative_1_Button.setEnabled(True)
+        self.Derivative_2_Button.setEnabled(True)
+        # self.main.show_graphic_of_eigenvalues_and_pc()
 
-        fig = plt.figure()
+        der1graph = self.main.derivative_function(self.main.all_samples_for_deivative)
+        der2graph = self.main.derivative_function(der1graph)
+        der1pca = der1graph[1:]
+        der2pca = der2graph[1:]
+        self.main.calculate_and_sort_eigenvalues_and_vectors(der1pca)
+        self.t_matrix_der1, self.p_matrix_der1 = self.main.calculate_t_and_p_matrix()
+        self.main.calculate_and_sort_eigenvalues_and_vectors(der2pca)
+        self.t_matrix_der2, self.p_matrix_der2 = self.main.calculate_t_and_p_matrix()
+
+
+        """fig = plt.figure()
         ax = plt.axes()
-        x = der1[0]
-        # ax.plot(x, der1[2])
-        ax.plot(x, der2[2])
+        x = der2graph[0]
+
+        print(self.main.filenames)
+        numbers = [[2, 3, 4, 5, 6, 7, 8, 9, 10], [54, 55, 56, 57, 58]]
+        for diap in range(len(numbers)):
+            for number in range(len(numbers[diap])):
+                if diap == 0:
+                    ax.plot(x, der2graph[numbers[diap][number]], color='g')
+                elif diap == 1:
+                    ax.plot(x, der2graph[numbers[diap][number]], color='r')
+                elif diap == 2:
+                    pass
         plt.show()
-        # self.main.show_graphic_of_eigenvalues_and_pc(self)
+        """
+    def radioButtonChecking(self):
+        if self.SpectraButton.isChecked():
+            self.actual_t = self.t_matrix_pca
+            self.actual_p = self.p_matrix_pca
+        elif self.Derivative_1_Button.isChecked():
+            self.actual_t = self.t_matrix_der1
+            self.actual_p = self.t_matrix_der1
+        elif self.Derivative_2_Button.isChecked():
+            self.actual_t = self.t_matrix_der2
+            self.actual_p = self.t_matrix_der2
 
 
     def rewriteData(self):
@@ -96,15 +130,16 @@ class Ui_SecondWindow(object):
     def scores2D(self):
         self.ColumnWindow = QtWidgets.QMainWindow()
         self.ui = Ui_ColumnWindow()
-        self.ui.Signal(self.main, signal=1)
+        self.ui.Signal(self.main, signal=1, actual_t=self.actual_t, actual_p=self.actual_p)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
 
     def loadings2D(self):
+        self.radioButtonChecking()
         self.ColumnWindow = QtWidgets.QMainWindow()
         self.ui = Ui_ColumnWindow()
-        self.ui.Signal(self.main, signal=2)
+        self.ui.Signal(self.main, signal=2, actual_t=self.actual_t, actual_p=self.actual_p)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
@@ -112,7 +147,7 @@ class Ui_SecondWindow(object):
     def scores3D(self):
         self.ColumnWindow = QtWidgets.QMainWindow()
         self.ui = Ui_ColumnWindow()
-        self.ui.Signal(self.main, signal=3)
+        self.ui.Signal(self.main, signal=3, actual_t=self.actual_t, actual_p=self.actual_p)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
@@ -137,7 +172,7 @@ class Ui_SecondWindow(object):
         self.SecondWindow = SecondWindow
         self.MainWindow = MainWindow
         SecondWindow.setObjectName("SecondWindow")
-        SecondWindow.resize(730, 504)
+        SecondWindow.resize(732, 561)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -204,7 +239,7 @@ class Ui_SecondWindow(object):
         self.Diapason_choose.setEditable(True)
         self.Diapason_choose.setObjectName("Diapason_choose")
         self.Return_home = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.Home())
-        self.Return_home.setGeometry(QtCore.QRect(430, 440, 181, 31))
+        self.Return_home.setGeometry(QtCore.QRect(60, 490, 181, 31))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -225,7 +260,7 @@ class Ui_SecondWindow(object):
         self.label_4.setObjectName("label_4")
         self.Scores_2D = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.scores2D())
         self.Scores_2D.setEnabled(False)
-        self.Scores_2D.setGeometry(QtCore.QRect(340, 90, 361, 61))
+        self.Scores_2D.setGeometry(QtCore.QRect(340, 140, 361, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -233,7 +268,7 @@ class Ui_SecondWindow(object):
         self.Scores_2D.setObjectName("Scores_2D")
         self.Loadings_2D = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.loadings2D())
         self.Loadings_2D.setEnabled(False)
-        self.Loadings_2D.setGeometry(QtCore.QRect(340, 160, 361, 61))
+        self.Loadings_2D.setGeometry(QtCore.QRect(340, 210, 361, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -241,7 +276,7 @@ class Ui_SecondWindow(object):
         self.Loadings_2D.setObjectName("Loadings_2D")
         self.Scores_3D = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.scores3D())
         self.Scores_3D.setEnabled(False)
-        self.Scores_3D.setGeometry(QtCore.QRect(340, 230, 361, 61))
+        self.Scores_3D.setGeometry(QtCore.QRect(340, 280, 361, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -249,7 +284,7 @@ class Ui_SecondWindow(object):
         self.Scores_3D.setObjectName("Scores_3D")
         self.Average_all = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.openAverage())
         self.Average_all.setEnabled(False)
-        self.Average_all.setGeometry(QtCore.QRect(340, 300, 361, 61))
+        self.Average_all.setGeometry(QtCore.QRect(340, 350, 361, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -257,42 +292,52 @@ class Ui_SecondWindow(object):
         self.Average_all.setObjectName("Average_all")
         self.Patients_button = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.openPatient())
         self.Patients_button.setEnabled(False)
-        self.Patients_button.setGeometry(QtCore.QRect(340, 370, 361, 61))
+        self.Patients_button.setGeometry(QtCore.QRect(340, 420, 361, 61))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
         self.Patients_button.setFont(font)
         self.Patients_button.setObjectName("Patients_button")
         self.line = QtWidgets.QFrame(self.centralwidget)
-        self.line.setGeometry(QtCore.QRect(300, 0, 20, 771))
+        self.line.setGeometry(QtCore.QRect(300, -20, 20, 771))
         self.line.setFrameShape(QtWidgets.QFrame.VLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.clearData = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.rewriteData())
         self.clearData.setEnabled(False)
-        self.clearData.setGeometry(QtCore.QRect(60, 450, 181, 31))
+        self.clearData.setGeometry(QtCore.QRect(430, 490, 181, 31))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
         self.clearData.setFont(font)
         self.clearData.setObjectName("clearData")
         self.directory_dpt = QtWidgets.QToolButton(self.centralwidget)
-        self.directory_dpt.setEnabled(True)
         self.directory_dpt.setGeometry(QtCore.QRect(250, 50, 31, 31))
         self.directory_dpt.setObjectName("directory_dpt")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(30, 10, 271, 41))
         self.label.setObjectName("label")
         self.pathText = QtWidgets.QTextEdit(self.centralwidget)
-        self.pathText.setEnabled(True)
         self.pathText.setGeometry(QtCore.QRect(30, 50, 251, 31))
         self.pathText.setObjectName("pathText")
         self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
-        self.checkBox.setEnabled(True)
         self.checkBox.setGeometry(QtCore.QRect(30, 330, 251, 21))
         self.checkBox.setChecked(True)
         self.checkBox.setTristate(False)
         self.checkBox.setObjectName("checkBox")
+        self.SpectraButton = QtWidgets.QRadioButton(self.centralwidget)
+        self.SpectraButton.setEnabled(False)
+        self.SpectraButton.setGeometry(QtCore.QRect(340, 80, 171, 20))
+        self.SpectraButton.setChecked(True)
+        self.SpectraButton.setObjectName("SpectraButton")
+        self.Derivative_1_Button = QtWidgets.QRadioButton(self.centralwidget)
+        self.Derivative_1_Button.setEnabled(False)
+        self.Derivative_1_Button.setGeometry(QtCore.QRect(340, 110, 181, 21))
+        self.Derivative_1_Button.setObjectName("Derivative_1_Button")
+        self.Derivative_2_Button = QtWidgets.QRadioButton(self.centralwidget)
+        self.Derivative_2_Button.setEnabled(False)
+        self.Derivative_2_Button.setGeometry(QtCore.QRect(530, 110, 171, 21))
+        self.Derivative_2_Button.setObjectName("Derivative_2_Button")
         self.label_2.raise_()
         self.label_3.raise_()
         self.Accept_Button.raise_()
@@ -312,6 +357,9 @@ class Ui_SecondWindow(object):
         self.pathText.raise_()
         self.directory_dpt.raise_()
         self.checkBox.raise_()
+        self.SpectraButton.raise_()
+        self.Derivative_1_Button.raise_()
+        self.Derivative_2_Button.raise_()
         SecondWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(SecondWindow)
         self.statusbar.setObjectName("statusbar")
@@ -319,6 +367,7 @@ class Ui_SecondWindow(object):
 
         self.retranslateUi(SecondWindow)
         QtCore.QMetaObject.connectSlotsByName(SecondWindow)
+
 
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -332,16 +381,15 @@ class Ui_SecondWindow(object):
         self.Research_name.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\""
                                                               " \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                               "<html><head><meta name=\"qrichtext\" content=\"1\" "
-                                                              "/><style type=\"text/css\">\n"
-                                                              "p, li { white-space: pre-wrap; }\n"
-                                                              "</style></head><body style=\" font-family:\'Arial\',"
-                                                              "\'Arial\'; font-size:12pt; font-weight:400;"
-                                                              " font-style:normal;\">"
-                                                              "\n""<p style=\"-qt-paragraph-type:empty; margin-top:0px;"
-                                                              " margin-bottom:0px; margin-left:0px; margin-right:0px;"
-                                                              " -qt-block-indent:0; text-indent:0px; font-family:"
-                                                              "\'MS Shell Dlg 2\'; font-size:8.25pt;\"><br />"
-                                                              "</p></body></html>"))
+                                                              "/><style type=\"text/css\">\n""p, li { white-space: "
+                                                              "pre-wrap; }\n""</style></head><body style=\" "
+                                                              "font-family:\'Arial\',\'Arial\'; font-size:12pt; "
+                                                              "font-weight:400; font-style:normal;\">\n"
+                                                              "<p style=\"-qt-paragraph-type:empty; margin-top:0px; "
+                                                              "margin-bottom:0px; margin-left:0px; margin-right:0px; "
+                                                              "-qt-block-indent:0; text-indent:0px; font-family:\'"
+                                                              "MS Shell Dlg 2\'; font-size:8.25pt;\""
+                                                              "><br /></p></body></html>"))
         self.Return_home.setText(_translate("SecondWindow", "Вернуться к началу"))
         self.label_4.setText(_translate("SecondWindow", "<html><head/><body><p align=\"center\">Расчёты произведены."
                                                         "<br/>Выберите необходимую опцию:</p></body></html>"))
@@ -353,16 +401,17 @@ class Ui_SecondWindow(object):
         self.clearData.setText(_translate("SecondWindow", "Сбросить параметры"))
         self.directory_dpt.setText(_translate("SecondWindow", "..."))
         self.label.setText(_translate("SecondWindow", "Текущий путь к .dpt спектрам:"))
-        self.pathText.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\""
-                                                         " \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                                         "<html><head><meta name=\"qrichtext\" content=\"1\" "
-                                                         "/><style type=\"text/css\">\n""p,"
-                                                         " li { white-space: pre-wrap; }\n"
-                                                         "</style></head><body style=\" font-family:\'Arial\'; "
-                                                         "font-size:12pt; font-weight:400; font-style:normal;\">\n"
-                                                         "<p style=\"-qt-paragraph-type:empty; margin-top:0px;"
-                                                         " margin-bottom:0px; margin-left:0px; margin-right:0px;"
-                                                         " -qt-block-indent:0; text-indent:0px;"
-                                                         "\"><br /></p></body></html>"))
+        self.pathText.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+                                                         "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                                         "<html><head><meta name=\"qrichtext\" content=\"1\""
+                                                         " /><style type=\"text/css\">\n""p, li { white-space: "
+                                                         "pre-wrap; }\n""</style></head><body style=\" "
+                                                         "font-family:\'Arial\'; font-size:12pt; font-weight:400; "
+                                                         "font-style:normal;\">\n""<p style=\"-qt-paragraph-type:empty; "
+                                                         "margin-top:0px; margin-bottom:0px; margin-left:0px; "
+                                                         "margin-right:0px; -qt-block-indent:0; text-indent:0px;\">"
+                                                         "<br /></p></body></html>"))
         self.checkBox.setText(_translate("SecondWindow", "Нормализация входных данных"))
-
+        self.SpectraButton.setText(_translate("SecondWindow", "Для самих спектров"))
+        self.Derivative_1_Button.setText(_translate("SecondWindow", "Для 1-й производной"))
+        self.Derivative_2_Button.setText(_translate("SecondWindow", "Для 2-й производной"))

@@ -32,7 +32,7 @@ class Spectra_Anal:
         os.chdir(os.curdir)
 
         for file_path in path:
-            print(glob.glob("input_dpt\\*.dpt"))
+            # print(glob.glob("input_dpt\\*.dpt"))
             input_df = pd.read_csv(file_path, header=None)
             self.input_df_list.append(input_df)
             filename = file_path.replace('input_dpt\\', '')
@@ -190,13 +190,12 @@ class Spectra_Anal:
             self.result_waves_n = [x + y for x, y in zip(self.result_waves_n, i)]
         for i in range(len(self.result_waves_n)):
             if len(self.waves_n) != 0:
-                self.esult_waves_n[i] = self.result_waves_n[i] / len(self.waves_n)
-        # return result_d, result_waves_d, result_p, result_waves_p, result_n, result_waves_n, normal
+                self.result_waves_n[i] = self.result_waves_n[i] / len(self.waves_n)
 
 
-    def calculate_and_sort_eigenvalues_and_vectors(self):
+    def calculate_and_sort_eigenvalues_and_vectors(self, input_data):
         # вычисляем транспонированную матрицу от входной
-        x_matrix = np.array(self.input_matrix)
+        x_matrix = np.array(input_data)
         x_matrix_transpose = x_matrix.transpose()
 
         # перемножаем, x_matrix * x_matrix_transpose = c_matrix
@@ -264,9 +263,10 @@ class Spectra_Anal:
             s_matrix[index][index] = (abs(eigenvalues[index])) ** (1 / 2)
 
         # находим матрицы T и P
-        self.t_matrix = u_vectors @ s_matrix
-        self.p_matrix = v_vectors
+        t_matrix = u_vectors @ s_matrix
+        p_matrix = v_vectors
         # g = u_vectors @ s_matrix @ v_vectors
+        return t_matrix, p_matrix
 
 
     def show_graphic_of_eigenvalues_and_pc(self):
@@ -321,16 +321,6 @@ class Spectra_Anal:
         return x, y, self.filenames
 
 
-    def show_graphic_of_p_matrix(self, Columns):
-        first_column = Columns[0]
-        second_column = Columns[1]
-        first_column -= 1
-        second_column -= 1
-        x = self.p_matrix[:, first_column]
-        y = self.p_matrix[:, second_column]
-        return x, y
-
-
     def show_graphic_3D(self, Columns):
         first_column = Columns[0]
         second_column = Columns[1]
@@ -342,25 +332,6 @@ class Spectra_Anal:
         y = self.t_matrix[:, second_column]
         z = self.t_matrix[:, third_column]
         return x, y, z, self.filenames
-
-
-    def show_graphic_of_average_ratio(self):
-        # Пересчитываем погрешность на основе данных из расчётов в excel, которые тут не будут представлены
-        error_radial = [0.5, 0.4, 0.001, 0.07, 0.01, 0.001, 0.001, 0.2, 0.03, 0.001]
-        for i in range(len(error_radial)):
-            error_radial[i] = error_radial[i] * self.normal[i]
-        result_d = np.append(self.result_d, self.result_d[0])
-        result_p = np.append(self.result_p, self.result_p[0])
-        result_n = np.append(self.result_n, self.result_n[0])
-        error_radial = np.append(error_radial, error_radial[0])
-        return result_d, result_p, result_n, error_radial
-
-
-    def show_graphic_of_average_waves(self):
-        g1 = self.result_waves_d
-        g2 = self.result_waves_p
-        g3 = self.result_waves_n
-        return g1, g2, g3
 
 
     def show_patient_graph(self, Patients):
@@ -394,6 +365,7 @@ class Spectra_Anal:
                     secr_intensities.append(copy_patient[name_secr])
                     secr_waves.append(self.waves_p[name_secr])
                     break
+
             if all_nesecr_numb != []:
                 for name_nesecr in range(len(all_nesecr_numb)):
                     if int(all_nesecr_numb[name_nesecr]) == int(Patients[number]):
@@ -477,21 +449,23 @@ class Spectra_Anal:
 
     def derivative_function(self, data_for_derivative):
         all_derivatives = []
-        all_derivatives.append(data_for_derivative[0])
+        all_derivatives.append(copy.deepcopy(data_for_derivative[0].tolist()))
         for sample in range(len(data_for_derivative)):
             sample_derivative = []
             if sample == 0:
                 pass
             else:
-                for point in range(len(data_for_derivative[sample])):
+                for point in range(len(data_for_derivative[1])):
                     if point == 0:
-                        deriv = 0.5 * ((data_for_derivative[sample][point+1] - data_for_derivative[sample][point]) /
+                        pass
+                        """deriv = 0.5 * ((data_for_derivative[sample][point+1] - data_for_derivative[sample][point]) /
                                        (data_for_derivative[0][point+1] - data_for_derivative[0][point]))
-                        sample_derivative.append(deriv)
+                        sample_derivative.append(deriv)"""
                     elif point == len(data_for_derivative[1]) - 1:
-                        deriv = 0.5 * ((data_for_derivative[sample][point] - data_for_derivative[sample][point-1]) /
+                        pass
+                        """deriv = 0.5 * ((data_for_derivative[sample][point] - data_for_derivative[sample][point-1]) /
                                        (data_for_derivative[0][point] - data_for_derivative[0][point-1]))
-                        sample_derivative.append(deriv)
+                        sample_derivative.append(deriv)"""
                     elif (point != 0) and (point != len(data_for_derivative[1]) - 1):
                         deriv = 0.5 * (((data_for_derivative[sample][point+1] - data_for_derivative[sample][point]) /
                                         (data_for_derivative[0][point+1] - data_for_derivative[0][point])) +
@@ -499,4 +473,7 @@ class Spectra_Anal:
                                         (data_for_derivative[0][point] - data_for_derivative[0][point-1])))
                         sample_derivative.append(deriv)
                 all_derivatives.append(np.array(sample_derivative))
+        all_derivatives[0].pop(0)
+        all_derivatives[0].pop(len(all_derivatives[0])-1)
+        all_derivatives[0] = np.array(all_derivatives[0])
         return all_derivatives
