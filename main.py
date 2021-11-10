@@ -311,29 +311,6 @@ class Spectra_Anal:
         plt.show()
 
 
-    def show_graphic_of_t_matrix(self, Columns):
-        first_column = Columns[0]
-        second_column = Columns[1]
-        first_column -= 1
-        second_column -= 1
-        x = self.t_matrix[:, first_column]
-        y = self.t_matrix[:, second_column]
-        return x, y, self.filenames
-
-
-    def show_graphic_3D(self, Columns):
-        first_column = Columns[0]
-        second_column = Columns[1]
-        third_column = Columns[2]
-        first_column -= 1
-        second_column -= 1
-        third_column -= 1
-        x = self.t_matrix[:, first_column]
-        y = self.t_matrix[:, second_column]
-        z = self.t_matrix[:, third_column]
-        return x, y, z, self.filenames
-
-
     def show_patient_graph(self, Patients):
         error_radial = [0.5, 0.4, 0.001, 0.07, 0.01, 0.001, 0.001, 0.2, 0.03, 0.001]
         for i in range(len(error_radial)):

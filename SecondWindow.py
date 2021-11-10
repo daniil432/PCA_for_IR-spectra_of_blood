@@ -94,6 +94,8 @@ class Ui_SecondWindow(object):
                     pass
         plt.show()
         """
+
+
     def radioButtonChecking(self):
         if self.SpectraButton.isChecked():
             self.actual_t = self.t_matrix_pca
@@ -130,15 +132,16 @@ class Ui_SecondWindow(object):
     def scores2D(self):
         self.ColumnWindow = QtWidgets.QMainWindow()
         self.ui = Ui_ColumnWindow()
+        self.radioButtonChecking()
         self.ui.Signal(self.main, signal=1, actual_t=self.actual_t, actual_p=self.actual_p)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
 
     def loadings2D(self):
-        self.radioButtonChecking()
         self.ColumnWindow = QtWidgets.QMainWindow()
         self.ui = Ui_ColumnWindow()
+        self.radioButtonChecking()
         self.ui.Signal(self.main, signal=2, actual_t=self.actual_t, actual_p=self.actual_p)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
@@ -147,6 +150,7 @@ class Ui_SecondWindow(object):
     def scores3D(self):
         self.ColumnWindow = QtWidgets.QMainWindow()
         self.ui = Ui_ColumnWindow()
+        self.radioButtonChecking()
         self.ui.Signal(self.main, signal=3, actual_t=self.actual_t, actual_p=self.actual_p)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()

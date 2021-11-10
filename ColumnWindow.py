@@ -21,6 +21,7 @@ class Ui_ColumnWindow(object):
 
 
     def showGraph(self):
+        self.filenames = self.main.filenames
         Columns_temp = self.Columns_int.toPlainText()
         Columns_temp = Columns_temp.replace(' ', '')
         Columns_temp = Columns_temp.replace('.', ',')
@@ -32,17 +33,21 @@ class Ui_ColumnWindow(object):
             pass
         else:
             if self.signal == 1:
-                self.x, self.y, self.filenames = self.main.show_graphic_of_t_matrix(Columns=self.Columns)
                 self.plotScores()
             elif self.signal == 2:
                 self.plotLoadings()
             elif self.signal == 3:
-                self.x, self.y, self.z, self.filenames = self.main.show_graphic_3D(Columns=self.Columns)
                 self.plot3D()
 
 
     def plotScores(self):
         self.colGraph.canvas.ax.clear()
+        first_column = self.Columns[0]
+        second_column = self.Columns[1]
+        first_column -= 1
+        second_column -= 1
+        self.x = self.t_matrix[:, first_column]
+        self.y = self.t_matrix[:, second_column]
         for index in range(len(self.filenames)):
             if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="red", marker="o", s=50)
@@ -73,6 +78,15 @@ class Ui_ColumnWindow(object):
 
     def plot3D(self):
         self.colGraph.canvas.ax.clear()
+        first_column = self.Columns[0]
+        second_column = self.Columns[1]
+        third_column = self.Columns[2]
+        first_column -= 1
+        second_column -= 1
+        third_column -= 1
+        self.x = self.t_matrix[:, first_column]
+        self.y = self.t_matrix[:, second_column]
+        self.z = self.t_matrix[:, third_column]
         for index in range(len(self.filenames)):
             if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="red")

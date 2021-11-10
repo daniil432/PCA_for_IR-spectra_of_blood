@@ -152,6 +152,7 @@ class Ui_PatientWindow(object):
         self.retranslateUi(PatientWindow)
         QtCore.QMetaObject.connectSlotsByName(PatientWindow)
 
+
     def retranslateUi(self, PatientWindow):
         _translate = QtCore.QCoreApplication.translate
         PatientWindow.setWindowTitle(_translate("PatientWindow", "MainWindow"))
