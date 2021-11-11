@@ -8,11 +8,27 @@ from matplotlib.figure import Figure
 
 
 class Ui_ColumnWindow(object):
-    def Signal(self, main, signal, actual_t, actual_p):
+    def Signal(self, main, signal, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2):
         self.main = main
         self.signal = signal
-        self.t_matrix = actual_t
-        self.p_matrix = actual_p
+        self.t_matrix_pca = t_pca
+        self.p_matrix_pca = p_pca
+        self.t_matrix_der1 = t_der1
+        self.p_matrix_der1 = p_der1
+        self.t_matrix_der2 = t_der2
+        self.p_matrix_der2 = p_der2
+
+
+    def radioButtonChecking(self):
+        if self.SpectraButton.isChecked():
+            self.t_matrix = self.t_matrix_pca
+            self.p_matrix = self.p_matrix_pca
+        elif self.Derivative_1_Button.isChecked():
+            self.t_matrix = self.t_matrix_der1
+            self.p_matrix = self.p_matrix_der1
+        elif self.Derivative_2_Button.isChecked():
+            self.t_matrix = self.t_matrix_der2
+            self.p_matrix = self.p_matrix_der2
 
 
     def Home(self):
@@ -21,6 +37,7 @@ class Ui_ColumnWindow(object):
 
 
     def showGraph(self):
+        self.radioButtonChecking()
         self.filenames = self.main.filenames
         Columns_temp = self.Columns_int.toPlainText()
         Columns_temp = Columns_temp.replace(' ', '')
@@ -51,13 +68,13 @@ class Ui_ColumnWindow(object):
         for index in range(len(self.filenames)):
             if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="red", marker="o", s=50)
-                # plt.annotate(filenames[index], (x[index], y[index]))
+                self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
             elif self.filenames[index][0] == 'N':
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="blue", marker="o", s=50)
-                # plt.annotate(filenames[index], (x[index], y[index]))
+                self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
             elif self.filenames[index][0] == 'D':
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="green", marker="o", s=50)
-                # plt.annotate(filenames[index], (x[index], y[index]))
+                self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
             elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="black", marker="o", s=50)
                 # plt.annotate(filenames[index], (x[index], y[index]))
@@ -105,19 +122,22 @@ class Ui_ColumnWindow(object):
         self.ColumnWindow = ColumnWindow
         self.SecondWindow = SecondWindow
         ColumnWindow.setObjectName("ColumnWindow")
-        ColumnWindow.resize(982, 796)
+        ColumnWindow.resize(1280, 858)
         self.centralwidget = QtWidgets.QWidget(ColumnWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.Columns_int = QtWidgets.QTextEdit(self.centralwidget)
-        self.Columns_int.setGeometry(QtCore.QRect(320, 80, 331, 41))
+        self.Columns_int.setGeometry(QtCore.QRect(470, 70, 340, 40))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(14)
+        self.Columns_int.setFont(font)
+        self.Columns_int.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.Columns_int.setObjectName("Columns_int")
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setEnabled(True)
-        self.label_3.setGeometry(QtCore.QRect(320, 20, 331, 61))
+        self.label_3.setGeometry(QtCore.QRect(470, 20, 341, 41))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(12)
-        font.setBold(True)
         font.setPointSize(18)
         self.label_3.setFont(font)
         self.label_3.setMouseTracking(True)
@@ -127,16 +147,44 @@ class Ui_ColumnWindow(object):
         self.label_3.setScaledContents(False)
         self.label_3.setObjectName("label_3")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.showGraph())
-        self.pushButton.setGeometry(QtCore.QRect(450, 130, 75, 23))
+        self.pushButton.setGeometry(QtCore.QRect(600, 160, 80, 25))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
         self.colGraph = MplWidget(self.signal, self.centralwidget)
-        self.colGraph.setGeometry(QtCore.QRect(20, 170, 941, 601))
+        self.colGraph.setGeometry(QtCore.QRect(20, 200, 1240, 601))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        self.colGraph.setFont(font)
         self.colGraph.setObjectName("colGraph")
-        ColumnWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(ColumnWindow)
-        self.statusbar.setObjectName("statusbar")
+        self.SpectraButton = QtWidgets.QRadioButton(self.centralwidget)
+        self.SpectraButton.setGeometry(QtCore.QRect(320, 120, 201, 31))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(14)
+        self.SpectraButton.setFont(font)
+        self.SpectraButton.setChecked(True)
+        self.SpectraButton.setObjectName("SpectraButton")
+        self.Derivative_1_Button = QtWidgets.QRadioButton(self.centralwidget)
+        self.Derivative_1_Button.setGeometry(QtCore.QRect(540, 120, 211, 31))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(14)
+        self.Derivative_1_Button.setFont(font)
+        self.Derivative_1_Button.setObjectName("Derivative_1_Button")
+        self.Derivative_2_Button = QtWidgets.QRadioButton(self.centralwidget)
+        self.Derivative_2_Button.setGeometry(QtCore.QRect(770, 120, 211, 31))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(14)
+        self.Derivative_2_Button.setFont(font)
+        self.Derivative_2_Button.setObjectName("Derivative_2_Button")
         self.CloseButton = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.Home())
-        self.CloseButton.setGeometry(QtCore.QRect(450, 690, 75, 23))
+        self.CloseButton.setGeometry(QtCore.QRect(600, 810, 80, 25))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
@@ -144,6 +192,9 @@ class Ui_ColumnWindow(object):
         font.setWeight(75)
         self.CloseButton.setFont(font)
         self.CloseButton.setObjectName("CloseButton")
+        ColumnWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(ColumnWindow)
+        self.statusbar.setObjectName("statusbar")
         ColumnWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(ColumnWindow)
@@ -153,15 +204,17 @@ class Ui_ColumnWindow(object):
     def retranslateUi(self, ColumnWindow):
         _translate = QtCore.QCoreApplication.translate
         ColumnWindow.setWindowTitle(_translate("ColumnWindow", "MainWindow"))
-        self.label_3.setText(_translate("ColumnWindow", "<html><head/><body><p align=\"center\">"
-                                                        "Введите номера столбцов:</p></body></html>"))
-        self.pushButton.setText(_translate("ColumnWindow", "ok"))
-        self.CloseButton.setText(_translate("PatientWindow", "Назад"))
+        self.label_3.setText(_translate("ColumnWindow", "<html><head/><body><p align=\"center\">Введите номера столбцов:</p></body></html>"))
+        self.pushButton.setText(_translate("ColumnWindow", "Принять"))
+        self.SpectraButton.setText(_translate("ColumnWindow", "Для самих спектров"))
+        self.Derivative_1_Button.setText(_translate("ColumnWindow", "Для 1-й производной"))
+        self.Derivative_2_Button.setText(_translate("ColumnWindow", "Для 2-й производной"))
+        self.CloseButton.setText(_translate("ColumnWindow", "Назад"))
 
 
 class MplCanvas(Canvas):
     def __init__(self, signal):
-        self.fig = Figure(figsize=(14, 14), dpi=100)
+        self.fig = Figure(figsize=(16, 16), dpi=100)
         if signal == 1:
             self.ax = self.fig.add_subplot(111)
         elif signal == 2:

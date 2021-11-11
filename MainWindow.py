@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         ui = Ui_SecondWindow()
         ui.setupUi(SecondWindow, MainWindow)
         self.main.read_eigenvalues_and_eigenvectors_from_files()
-        self.main.calculate_t_and_p_matrix()
+        """self.main.calculate_t_and_p_matrix()"""
         ui.Signal_Csv(self.main)
         MainWindow.hide()
         SecondWindow.show()

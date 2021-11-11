@@ -360,13 +360,25 @@ class Spectra_Anal:
         return secr_intensities, nesecr_intensities, error_radial, secr_waves, nesecr_waves
 
 
-    def write_eigenvalues_and_eigenvectors_in_files(self, research_name):
+    def write_eigenvalues_and_eigenvectors_in_files(self, research_name, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2):
+        t_matrix_pca = t_pca
+        p_matrix_pca = p_pca
+        t_matrix_der1 = t_der1
+        p_matrix_der1 = p_der1
+        t_matrix_der2 = t_der2
+        p_matrix_der2 = p_der2
+        t_pca_dataframe = pd.DataFrame(t_matrix_pca)
+        p_pca_dataframe = pd.DataFrame(p_matrix_pca)
+        t_der1_dataframe = pd.DataFrame(t_matrix_der1)
+        p_der1_dataframe = pd.DataFrame(p_matrix_der1)
+        t_der2_dataframe = pd.DataFrame(t_matrix_der2)
+        p_der2_dataframe = pd.DataFrame(p_matrix_der2)
         ratio_dataframe = pd.DataFrame(self.ratio)
         waves_dataframe = pd.DataFrame(self.waves)
-        eigenvalues_c_dataframe = pd.DataFrame(self.eigenvalues_c)
+        """eigenvalues_c_dataframe = pd.DataFrame(self.eigenvalues_c)
         eigenvectors_c_dataframe = pd.DataFrame(self.eigenvectors_c)
         eigenvalues_b_dataframe = pd.DataFrame(self.eigenvalues_b)
-        eigenvectors_b_dataframe = pd.DataFrame(self.eigenvectors_b)
+        eigenvectors_b_dataframe = pd.DataFrame(self.eigenvectors_b)"""
         filenames_dataframe = pd.DataFrame(self.filenames)
         current_datetime = str(datetime.now()).replace(':', '-')
         if research_name != '':
@@ -374,18 +386,30 @@ class Spectra_Anal:
         else:
             files_directory = 'output_csv\\{}'.format(current_datetime)
         os.mkdir(files_directory)
+        t_pca_dataframe.to_csv(files_directory + '\\t_pca.csv'.format(current_datetime), index=False,
+                               header=None)
+        p_pca_dataframe.to_csv(files_directory + '\\p_pca.csv'.format(current_datetime), index=False,
+                               header=None)
+        t_der1_dataframe.to_csv(files_directory + '\\t_der1.csv'.format(current_datetime), index=False,
+                               header=None)
+        p_der1_dataframe.to_csv(files_directory + '\\p_der1.csv'.format(current_datetime), index=False,
+                                header=None)
+        t_der2_dataframe.to_csv(files_directory + '\\t_der2.csv'.format(current_datetime), index=False,
+                                header=None)
+        p_der2_dataframe.to_csv(files_directory + '\\p_der2.csv'.format(current_datetime), index=False,
+                                header=None)
         ratio_dataframe.to_csv(files_directory + '\\ratio.csv'.format(current_datetime), index=False,
                                        header=None)
         waves_dataframe.to_csv(files_directory + '\\waves.csv'.format(current_datetime), index=False,
                                        header=None)
-        eigenvalues_c_dataframe.to_csv(files_directory + '\\eigenvalues_c.csv'.format(current_datetime), index=False,
+        """eigenvalues_c_dataframe.to_csv(files_directory + '\\eigenvalues_c.csv'.format(current_datetime), index=False,
                                        header=None)
         eigenvectors_c_dataframe.to_csv(files_directory + '\\eigenvectors_c.csv'.format(current_datetime), index=False,
                                         header=None)
         eigenvalues_b_dataframe.to_csv(files_directory + '\\eigenvalues_b.csv'.format(current_datetime), index=False,
                                        header=None)
         eigenvectors_b_dataframe.to_csv(files_directory + '\\eigenvectors_b.csv'.format(current_datetime), index=False,
-                                        header=None)
+                                        header=None)"""
         filenames_dataframe.to_csv(files_directory + '\\filenames.csv'.format(current_datetime), index=False,
                                    header=None)
         print('[PCA]: исследование {} {} сохранено'.format(current_datetime, research_name))
@@ -394,31 +418,61 @@ class Spectra_Anal:
     def read_eigenvalues_and_eigenvectors_from_files(self):
         self.ratio = []
         self.waves = []
-        self.eigenvectors_c = []
+        self.t_matrix_pca = []
+        self.p_matrix_pca = []
+        self.t_matrix_der1 = []
+        self.p_matrix_der1 = []
+        self.t_matrix_der2 = []
+        self.p_matrix_der2 = []
+        """self.eigenvectors_c = []
         self.eigenvalues_c = []
         self.eigenvectors_b = []
-        self.eigenvalues_b = []
+        self.eigenvalues_b = []"""
         self.filenames = []
         self.ratio_tmp = pd.read_csv('input_csv\\ratio.csv', header=None).values.tolist()
         self.waves_tmp = pd.read_csv('input_csv\\waves.csv', header=None).values.tolist()
-        eigenvalues_c_tmp = pd.read_csv('input_csv\\eigenvalues_c.csv', header=None).values.tolist()
+        self.t_pca_tmp = pd.read_csv('input_csv\\t_pca.csv', header=None).values.tolist()
+        self.p_pca_tmp = pd.read_csv('input_csv\\p_pca.csv', header=None).values.tolist()
+        self.t_der1_tmp = pd.read_csv('input_csv\\t_der1.csv', header=None).values.tolist()
+        self.p_der1_tmp = pd.read_csv('input_csv\\p_der1.csv', header=None).values.tolist()
+        self.t_der2_tmp = pd.read_csv('input_csv\\t_der2.csv', header=None).values.tolist()
+        self.p_der2_tmp = pd.read_csv('input_csv\\p_der2.csv', header=None).values.tolist()
+        """eigenvalues_c_tmp = pd.read_csv('input_csv\\eigenvalues_c.csv', header=None).values.tolist()
         eigenvectors_c_tmp = pd.read_csv('input_csv\\eigenvectors_c.csv', header=None).values.tolist()
         eigenvalues_b_tmp = pd.read_csv('input_csv\\eigenvalues_b.csv', header=None).values.tolist()
-        eigenvectors_b_tmp = pd.read_csv('input_csv\\eigenvectors_b.csv', header=None).values.tolist()
+        eigenvectors_b_tmp = pd.read_csv('input_csv\\eigenvectors_b.csv', header=None).values.tolist()"""
         filenames_tmp = pd.read_csv('input_csv\\filenames.csv', header=None).values.tolist()
 
         for element in self.ratio_tmp:
             self.ratio.append(element)
         for element in self.waves_tmp:
             self.waves.append(element)
-        for element in eigenvalues_c_tmp:
+        for element in self.t_pca_tmp:
+            self.t_matrix_pca.append(element)
+        self.t_matrix_pca = np.array(self.t_matrix_pca)
+        for element in self.p_pca_tmp:
+            self.p_matrix_pca.append(element)
+        self.p_matrix_pca = np.array(self.p_matrix_pca)
+        for element in self.t_der1_tmp:
+            self.t_matrix_der1.append(element)
+        self.t_matrix_der1 = np.array(self.t_matrix_der1)
+        for element in self.p_der1_tmp:
+            self.p_matrix_der1.append(element)
+        self.p_matrix_der1 = np.array(self.p_matrix_der1)
+        for element in self.t_der2_tmp:
+            self.t_matrix_der2.append(element)
+        self.t_matrix_der2 = np.array(self.t_matrix_der2)
+        for element in self.p_der2_tmp:
+            self.p_matrix_der2.append(element)
+        self.p_matrix_der2 = np.array(self.p_matrix_der2)
+        """for element in eigenvalues_c_tmp:
             self.eigenvalues_c.append(element[0])
         for element in eigenvalues_b_tmp:
             self.eigenvalues_b.append(element[0])
         for element in eigenvectors_c_tmp:
             self.eigenvectors_c.append(element)
         for element in eigenvectors_b_tmp:
-            self.eigenvectors_b.append(element)
+            self.eigenvectors_b.append(element)"""
         for element in filenames_tmp:
             self.filenames.append(element[0])
         print('[PCA]: сохраненное исследование прочитано')
