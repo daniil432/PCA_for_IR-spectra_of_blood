@@ -353,16 +353,28 @@ class Ui_SecondWindow(object):
     def retranslateUi(self, SecondWindow):
         _translate = QtCore.QCoreApplication.translate
         SecondWindow.setWindowTitle(_translate("SecondWindow", "MainWindow"))
-        self.label_2.setText(_translate("SecondWindow", "<html><head/><body><p>Введите название исследования:<br/>(По умолчанию время запуска программы)</p></body></html>"))
-        self.label_3.setText(_translate("SecondWindow", "<html><head/><body><p>Введите изучаемый диапазон волновых чисел:<br/>(в формате &quot;xx-xxxx, yy-yyyy, ...&quot; )</p></body></html>"))
+        self.label_2.setText(_translate("SecondWindow","<html><head/><body><p>Введите название "
+                                                       "исследования:""<br/>(По умолчанию время запуска "
+                                                       "программы)</p></body></html>"))
+        self.label_3.setText(_translate("SecondWindow", "<html><head/><body><p>Введите изучаемый диапазон "
+                                                        "волновых чисел:<br/>(в формате &quot;xx-xxxx, "
+                                                        "yy-yyyy, ...&quot; )</p></body></html>"))
         self.Accept_Button.setText(_translate("SecondWindow", "Принять"))
-        self.Research_name.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Arial\',\'Arial\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'MS Shell Dlg 2\'; font-size:8.25pt;\"><br /></p></body></html>"))
+        self.Research_name.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML "
+                                                              "4.0//EN\" \"http://www.w3.org/TR/REC-html40/"
+                                                              "strict.dtd\">\n""<html><head><meta name=\"qrichtext\" "
+                                                              "content=\"1\" /><style type=\"text/css\">\n""p, "
+                                                              "li { white-space: pre-wrap; }\n""</style></head><body "
+                                                              "style=\" font-family:\'Arial\',\'Arial\'; "
+                                                              "font-size:12pt; font-weight:400; font-style:normal;\">"
+                                                              "\n""<p style=\"-qt-paragraph-type:empty; margin-top:0px;"
+                                                              " margin-bottom:0px; margin-left:0px; margin-right:0px; "
+                                                              "-qt-block-indent:0; text-indent:0px; font-family:\'"
+                                                              "MS Shell Dlg 2\'; font-size:8.25pt;\">"
+                                                              "<br /></p></body></html>"))
         self.Return_home.setText(_translate("SecondWindow", "Вернуться к началу"))
-        self.label_4.setText(_translate("SecondWindow", "<html><head/><body><p align=\"center\">Расчёты произведены.<br/>Выберите необходимую опцию:</p></body></html>"))
+        self.label_4.setText(_translate("SecondWindow", "<html><head/><body><p align=\"center\">Расчёты произведены."
+                                                        "<br/>Выберите необходимую опцию:</p></body></html>"))
         self.Scores_2D.setText(_translate("SecondWindow", "2D график по столбцам матрицы T (счета)"))
         self.Loadings_2D.setText(_translate("SecondWindow", "2D график по столбцам матрицы P (нагрузки)"))
         self.Scores_3D.setText(_translate("SecondWindow", "3D график по столбцам матрицы T (счета)"))
@@ -371,11 +383,16 @@ class Ui_SecondWindow(object):
         self.clearData.setText(_translate("SecondWindow", "Сбросить параметры"))
         self.directory_dpt.setText(_translate("SecondWindow", "..."))
         self.label.setText(_translate("SecondWindow", "Текущий путь к .dpt спектрам:"))
-        self.pathText.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Arial\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
+        self.pathText.setHtml(_translate("SecondWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\""
+                                                         " \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n""<html>"
+                                                         "<head><meta name=\"qrichtext\" content=\"1\" /><style "
+                                                         "type=\"text/css\">\n""p, li { white-space: pre-wrap; }\n"
+                                                         "</style></head><body style=\" font-family:\'Arial\'; "
+                                                         "font-size:12pt; font-weight:400; font-style:normal;\">"
+                                                         "\n""<p style=\"-qt-paragraph-type:empty; margin-top:0px;"
+                                                         " margin-bottom:0px; margin-left:0px; margin-right:0px; "
+                                                         "-qt-block-indent:0; text-indent:0px;\"><br /></p>"
+                                                         "</body></html>"))
         self.checkBox.setText(_translate("SecondWindow", "Нормализация входных данных"))
 
 

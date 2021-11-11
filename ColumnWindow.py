@@ -204,7 +204,8 @@ class Ui_ColumnWindow(object):
     def retranslateUi(self, ColumnWindow):
         _translate = QtCore.QCoreApplication.translate
         ColumnWindow.setWindowTitle(_translate("ColumnWindow", "MainWindow"))
-        self.label_3.setText(_translate("ColumnWindow", "<html><head/><body><p align=\"center\">Введите номера столбцов:</p></body></html>"))
+        self.label_3.setText(_translate("ColumnWindow", "<html><head/><body><p align=\"center\">"
+                                                        "Введите номера столбцов:</p></body></html>"))
         self.pushButton.setText(_translate("ColumnWindow", "Принять"))
         self.SpectraButton.setText(_translate("ColumnWindow", "Для самих спектров"))
         self.Derivative_1_Button.setText(_translate("ColumnWindow", "Для 1-й производной"))
