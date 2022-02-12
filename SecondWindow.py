@@ -1,20 +1,20 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from ColumnWindow import Ui_ColumnWindow
 from PatientWindow import Ui_PatientWindow
 from AverageWindow import Ui_AverageWindow
 from main import Spectra_Anal
-import os
-import glob
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 
-class Ui_SecondWindow(object):
+class Ui_SecondWindow(QtWidgets.QWidget):
     def Signal_Csv(self, main):
         self.main = main
         self.main.sorting_ratio_and_waves_by_names()
         self.main.calculate_ratio()
         self.t_matrix_pca = self.main.t_matrix_pca
-        self.p_matrix_pca = self.main.t_matrix_der1
+        self.p_matrix_pca = self.main.p_matrix_pca
         self.t_matrix_der1 = self.main.t_matrix_der1
         self.p_matrix_der1 = self.main.p_matrix_der1
         self.t_matrix_der2 = self.main.t_matrix_der2
@@ -35,15 +35,19 @@ class Ui_SecondWindow(object):
         self.Return_home.setEnabled(True)
 
 
+    def browseFiles(self):
+        fname = QFileDialog.getExistingDirectory(self, 'Open File', 'C:\PCA_with_R')
+        self.pathText.setText(fname)
+
+
     def acceptParams(self):
         self.main = Spectra_Anal()
         input_data = self.Diapason_choose.currentText()
         research_name = self.Research_name.toPlainText()
-        if self.pathText.toPlainText() == '':
-            os.chdir(os.curdir)
-            path = glob.glob("input_dpt\\*.dpt")
+        if self.pathText.toPlainText() != '':
+            path_dpt = self.pathText.toPlainText()
         else:
-            path = self.pathText.toPlainText()
+            path_dpt = 'C:\PCA_with_R\input_dpt'
         if self.checkBox.isChecked():
             normalization = 'y'
         else:
@@ -54,16 +58,23 @@ class Ui_SecondWindow(object):
         self.Research_name.setEnabled(False)
         self.checkBox.setEnabled(False)
         self.directory_dpt.setEnabled(False)
-        self.main.read_files(input_data=input_data, normalization=normalization, path=path)
+        self.main.read_files(input_data=input_data, normalization=normalization, path_dpt=path_dpt)
         self.main.cutting_spectra_and_finding_ratio()
         self.main.sorting_ratio_and_waves_by_names()
         self.main.calculate_ratio()
         self.main.calculate_and_sort_eigenvalues_and_vectors(self.main.input_matrix)
         self.t_matrix_pca, self.p_matrix_pca = self.main.calculate_t_and_p_matrix()
-        der1graph = self.main.derivative_function(self.main.all_samples_for_deivative)
+        der1graph = self.main.derivative_function(self.main.all_samples_for_derivative)
         der2graph = self.main.derivative_function(der1graph)
+        xd, yd = der2graph[0], der2graph[1]
+        plt.figure()
+        plt.plot(xd, yd, '-', linewidth=4, label='Data')
+        plt.show()
+        # self.main.fitting(der2graph, 4)
         der1pca = der1graph[1:]
         der2pca = der2graph[1:]
+        self.waves = self.main.all_samples_for_derivative[0]
+        self.main.derivative_saving(der2graph)
         self.main.calculate_and_sort_eigenvalues_and_vectors(der1pca)
         self.t_matrix_der1, self.p_matrix_der1 = self.main.calculate_t_and_p_matrix()
         self.main.calculate_and_sort_eigenvalues_and_vectors(der2pca)
@@ -71,6 +82,7 @@ class Ui_SecondWindow(object):
         self.main.write_eigenvalues_and_eigenvectors_in_files(research_name, self.t_matrix_pca, self.p_matrix_pca,
                                                               self.t_matrix_der1, self.p_matrix_der1,
                                                               self.t_matrix_der2, self.p_matrix_der2)
+        self.waves_loadings = [self.main.one_wave, der1graph[0], der2graph[0]]
         self.Scores_2D.setEnabled(True)
         self.Scores_3D.setEnabled(True)
         self.Loadings_2D.setEnabled(True)
@@ -78,24 +90,6 @@ class Ui_SecondWindow(object):
         self.Patients_button.setEnabled(True)
         self.clearData.setEnabled(True)
         # self.main.show_graphic_of_eigenvalues_and_pc()
-
-
-        """fig = plt.figure()
-        ax = plt.axes()
-        x = der2graph[0]
-
-        print(self.main.filenames)
-        numbers = [[2, 3, 4, 5, 6, 7, 8, 9, 10], [54, 55, 56, 57, 58]]
-        for diap in range(len(numbers)):
-            for number in range(len(numbers[diap])):
-                if diap == 0:
-                    ax.plot(x, der2graph[numbers[diap][number]], color='g')
-                elif diap == 1:
-                    ax.plot(x, der2graph[numbers[diap][number]], color='r')
-                elif diap == 2:
-                    pass
-        plt.show()
-        """
 
 
     def rewriteData(self):
@@ -124,7 +118,7 @@ class Ui_SecondWindow(object):
         self.ui = Ui_ColumnWindow()
         self.ui.Signal(self.main, signal=1, t_pca=self.t_matrix_pca, p_pca=self.p_matrix_pca,
                        t_der1=self.t_matrix_der1, p_der1=self.p_matrix_der1,
-                       t_der2=self.t_matrix_der2, p_der2=self.p_matrix_der2)
+                       t_der2=self.t_matrix_der2, p_der2=self.p_matrix_der2, waves=self.waves)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
@@ -134,7 +128,7 @@ class Ui_SecondWindow(object):
         self.ui = Ui_ColumnWindow()
         self.ui.Signal(self.main, signal=2, t_pca=self.t_matrix_pca, p_pca=self.p_matrix_pca,
                        t_der1=self.t_matrix_der1, p_der1=self.p_matrix_der1,
-                       t_der2=self.t_matrix_der2, p_der2=self.p_matrix_der2)
+                       t_der2=self.t_matrix_der2, p_der2=self.p_matrix_der2, waves=self.waves_loadings)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
@@ -144,7 +138,7 @@ class Ui_SecondWindow(object):
         self.ui = Ui_ColumnWindow()
         self.ui.Signal(self.main, signal=3, t_pca=self.t_matrix_pca, p_pca=self.p_matrix_pca,
                        t_der1=self.t_matrix_der1, p_der1=self.p_matrix_der1,
-                       t_der2=self.t_matrix_der2, p_der2=self.p_matrix_der2)
+                       t_der2=self.t_matrix_der2, p_der2=self.p_matrix_der2, waves=self.waves)
         self.ui.setupUi(self.ColumnWindow, self.SecondWindow)
         self.ColumnWindow.show()
 
@@ -209,6 +203,7 @@ class Ui_SecondWindow(object):
         self.Accept_Button.setFont(font)
         self.Accept_Button.setObjectName("Accept_Button")
         self.Research_name = QtWidgets.QTextEdit(self.centralwidget)
+        self.Research_name.setPlaceholderText(str(datetime.today().strftime('%Y-%m-%d_%H-%M')))
         self.Research_name.setGeometry(QtCore.QRect(30, 170, 251, 31))
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -309,13 +304,14 @@ class Ui_SecondWindow(object):
         font.setPointSize(12)
         self.clearData.setFont(font)
         self.clearData.setObjectName("clearData")
-        self.directory_dpt = QtWidgets.QToolButton(self.centralwidget)
+        self.directory_dpt = QtWidgets.QToolButton(self.centralwidget, clicked=lambda: self.browseFiles())
         self.directory_dpt.setGeometry(QtCore.QRect(250, 50, 31, 31))
         self.directory_dpt.setObjectName("directory_dpt")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(30, 10, 271, 41))
         self.label.setObjectName("label")
         self.pathText = QtWidgets.QTextEdit(self.centralwidget)
+        self.pathText.setPlaceholderText('C:\PCA_with_R\input_dpt')
         self.pathText.setGeometry(QtCore.QRect(30, 50, 251, 31))
         self.pathText.setObjectName("pathText")
         self.checkBox = QtWidgets.QCheckBox(self.centralwidget)

@@ -1,14 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+import matplotlib.pyplot as plt
 import matplotlib
-matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+matplotlib.use("Qt5Agg")
 
 
-class Ui_ColumnWindow(object):
-    def Signal(self, main, signal, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2):
+class Ui_ColumnWindow(QtWidgets.QWidget):
+    def Signal(self, main, signal, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, waves):
         self.main = main
         self.signal = signal
         self.t_matrix_pca = t_pca
@@ -17,18 +18,22 @@ class Ui_ColumnWindow(object):
         self.p_matrix_der1 = p_der1
         self.t_matrix_der2 = t_der2
         self.p_matrix_der2 = p_der2
+        self.waves_loadings = waves
 
 
     def radioButtonChecking(self):
         if self.SpectraButton.isChecked():
             self.t_matrix = self.t_matrix_pca
             self.p_matrix = self.p_matrix_pca
+            self.waves = self.waves_loadings[0]
         elif self.Derivative_1_Button.isChecked():
             self.t_matrix = self.t_matrix_der1
             self.p_matrix = self.p_matrix_der1
+            self.waves = self.waves_loadings[1]
         elif self.Derivative_2_Button.isChecked():
             self.t_matrix = self.t_matrix_der2
             self.p_matrix = self.p_matrix_der2
+            self.waves = self.waves_loadings[2]
 
 
     def Home(self):
@@ -68,15 +73,15 @@ class Ui_ColumnWindow(object):
         for index in range(len(self.filenames)):
             if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="red", marker="o", s=50)
-                self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
+                # self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
             elif self.filenames[index][0] == 'N':
-                self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="blue", marker="o", s=50)
-                self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
+                self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="blue", marker="P", s=50)
+                # self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
             elif self.filenames[index][0] == 'D':
-                self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="green", marker="o", s=50)
-                self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
+                self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="green", marker="*", s=50)
+                # self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
             elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
-                self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="black", marker="o", s=50)
+                self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], color="black", marker="*", s=50)
                 # plt.annotate(filenames[index], (x[index], y[index]))
         self.colGraph.canvas.draw()
 
@@ -86,10 +91,27 @@ class Ui_ColumnWindow(object):
         second_column = self.Columns[1]
         first_column -= 1
         second_column -= 1
+
+        figs = plt.figure()
+        axs = figs.add_subplot(111)
+        ys = self.p_matrix[:, first_column]
+        xs = self.waves
+        axs.scatter(xs, ys, color="black", marker="o", s=12)
+        plt.show()
+
         self.x = self.p_matrix[:, first_column]
         self.y = self.p_matrix[:, second_column]
         self.colGraph.canvas.ax.clear()
         self.colGraph.canvas.ax.scatter(self.x, self.y, color="black", marker="o", s=12)
+        plt.axvline(x=1652.5, color='red', label='Alpha-helices', linewidth=3.5, alpha=0.5)
+        plt.axvline(x=1629.5, color='blue', label='Beta-sheets', linewidth=11.5, alpha=0.5)
+        plt.axvline(x=1682.5, color='blue', label='Beta-sheets', linewidth=12.5, alpha=0.5)
+        plt.axvline(x=1631, color='blue', label='Beta-sheets', linewidth=1, alpha=0.5)
+        plt.axvline(x=1664, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        plt.axvline(x=1672, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        plt.axvline(x=1684, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        plt.axvline(x=1690, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        plt.axvline(x=1647, color='orange', label='Random-coil', linewidth=2, alpha=0.5)
         self.colGraph.canvas.draw()
 
 

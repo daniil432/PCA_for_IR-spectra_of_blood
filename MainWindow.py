@@ -1,9 +1,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QFileDialog
 from SecondWindow import Ui_SecondWindow
 from main import Spectra_Anal
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QtWidgets.QWidget):
     def openDpt(self):
         SecondWindow = QtWidgets.QMainWindow()
         ui = Ui_SecondWindow()
@@ -17,14 +18,19 @@ class Ui_MainWindow(object):
         SecondWindow = QtWidgets.QMainWindow()
         ui = Ui_SecondWindow()
         ui.setupUi(SecondWindow, MainWindow)
-        self.main.read_eigenvalues_and_eigenvectors_from_files()
+        self.main.read_eigenvalues_and_eigenvectors_from_files(self.path_csv)
         """self.main.calculate_t_and_p_matrix()"""
         ui.Signal_Csv(self.main)
         MainWindow.hide()
         SecondWindow.show()
 
 
+    def browseFiles(self):
+        fname = QFileDialog.getExistingDirectory(self, 'Open File', 'C:\PCA_with_R')
+        self.path_csv = fname
+
     def setupUi(self, MainWindow):
+        self.path_csv = 'C:\PCA_with_R\input_csv'
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(515, 380)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -50,7 +56,7 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.button_dpt.setFont(font)
         self.button_dpt.setObjectName("button_dpt")
-        self.directory_csv = QtWidgets.QToolButton(self.centralwidget)
+        self.directory_csv = QtWidgets.QToolButton(self.centralwidget, clicked=lambda: self.browseFiles())
         self.directory_csv.setGeometry(QtCore.QRect(430, 180, 61, 61))
         self.directory_csv.setObjectName("directory_csv")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
