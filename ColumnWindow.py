@@ -1,16 +1,19 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
-import matplotlib.pyplot as plt
-import matplotlib
+from PyQt5 import QtWidgets
+from PyQt5.uic import loadUi
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-matplotlib.use("Qt5Agg")
+import matplotlib.pyplot as plt
+import os
 
 
-class Ui_ColumnWindow(QtWidgets.QWidget):
-    def Signal(self, main, signal, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, waves):
-        self.main = main
+class ColWin(QDialog):
+    def __init__(self, SpeAn, signal, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, waves):
+        super(ColWin, self).__init__()
+        print(os.path.dirname(os.path.abspath(__file__)))
+        loadUi("C:\\PCA_with_R\\ColumnWindow.ui", self)
+        self.SpeAn = SpeAn
         self.signal = signal
         self.t_matrix_pca = t_pca
         self.p_matrix_pca = p_pca
@@ -19,32 +22,17 @@ class Ui_ColumnWindow(QtWidgets.QWidget):
         self.t_matrix_der2 = t_der2
         self.p_matrix_der2 = p_der2
         self.waves_loadings = waves
+        self.colGraph = MplWidget(signal, self.colGraph)
+        self.pushButton.clicked.connect(self.showGraphColumn)
+        self.CloseButton.clicked.connect(self.close)
 
-
-    def radioButtonChecking(self):
-        if self.SpectraButton.isChecked():
-            self.t_matrix = self.t_matrix_pca
-            self.p_matrix = self.p_matrix_pca
-            self.waves = self.waves_loadings[0]
-        elif self.Derivative_1_Button.isChecked():
-            self.t_matrix = self.t_matrix_der1
-            self.p_matrix = self.p_matrix_der1
-            self.waves = self.waves_loadings[1]
-        elif self.Derivative_2_Button.isChecked():
-            self.t_matrix = self.t_matrix_der2
-            self.p_matrix = self.p_matrix_der2
-            self.waves = self.waves_loadings[2]
-
-
-    def Home(self):
-        self.ColumnWindow.close()
-        self.SecondWindow.show()
-
-
-    def showGraph(self):
+    def showGraphColumn(self):
         self.radioButtonChecking()
-        self.filenames = self.main.filenames
-        Columns_temp = self.Columns_int.toPlainText()
+        self.filenames = self.SpeAn.filenames
+        if self.Columns_int.toPlainText() != '':
+            Columns_temp = self.Columns_int.toPlainText()
+        else:
+            Columns_temp = "1, 2, 3"
         Columns_temp = Columns_temp.replace(' ', '')
         Columns_temp = Columns_temp.replace('.', ',')
         input_temp = Columns_temp.split(',')
@@ -61,6 +49,19 @@ class Ui_ColumnWindow(QtWidgets.QWidget):
             elif self.signal == 3:
                 self.plot3D()
 
+    def radioButtonChecking(self):
+        if self.SpectraButton.isChecked():
+            self.t_matrix = self.t_matrix_pca
+            self.p_matrix = self.p_matrix_pca
+            self.waves_for_graph = self.waves[0]
+        elif self.Derivative_1_Button.isChecked():
+            self.t_matrix = self.t_matrix_der1
+            self.p_matrix = self.p_matrix_der1
+            self.waves_for_graph = self.waves[1]
+        elif self.Derivative_2_Button.isChecked():
+            self.t_matrix = self.t_matrix_der2
+            self.p_matrix = self.p_matrix_der2
+            self.waves_for_graph = self.waves[2]
 
     def plotScores(self):
         self.colGraph.canvas.ax.clear()
@@ -95,7 +96,7 @@ class Ui_ColumnWindow(QtWidgets.QWidget):
         figs = plt.figure()
         axs = figs.add_subplot(111)
         ys = self.p_matrix[:, first_column]
-        xs = self.waves
+        xs = self.waves_for_graph
         axs.scatter(xs, ys, color="black", marker="o", s=12)
         plt.show()
 
@@ -135,109 +136,13 @@ class Ui_ColumnWindow(QtWidgets.QWidget):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="green")
             elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
                 self.colGraph.canvas.ax.scatter(self.x[index], self.y[index], self.z[index], color="black")
-        """for angle in range(0, 360):
-            self.colGraph.canvas.ax.view_init(0, angle)"""
         self.colGraph.canvas.draw()
-
-
-    def setupUi(self, ColumnWindow, SecondWindow):
-        self.ColumnWindow = ColumnWindow
-        self.SecondWindow = SecondWindow
-        ColumnWindow.setObjectName("ColumnWindow")
-        ColumnWindow.resize(1280, 858)
-        self.centralwidget = QtWidgets.QWidget(ColumnWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.Columns_int = QtWidgets.QTextEdit(self.centralwidget)
-        self.Columns_int.setGeometry(QtCore.QRect(470, 70, 340, 40))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(14)
-        self.Columns_int.setFont(font)
-        self.Columns_int.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.Columns_int.setObjectName("Columns_int")
-        self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setEnabled(True)
-        self.label_3.setGeometry(QtCore.QRect(470, 20, 341, 41))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(18)
-        self.label_3.setFont(font)
-        self.label_3.setMouseTracking(True)
-        self.label_3.setTabletTracking(False)
-        self.label_3.setAcceptDrops(False)
-        self.label_3.setAutoFillBackground(False)
-        self.label_3.setScaledContents(False)
-        self.label_3.setObjectName("label_3")
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.showGraph())
-        self.pushButton.setGeometry(QtCore.QRect(600, 160, 80, 25))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.pushButton.setFont(font)
-        self.pushButton.setObjectName("pushButton")
-        self.colGraph = MplWidget(self.signal, self.centralwidget)
-        self.colGraph.setGeometry(QtCore.QRect(20, 200, 1240, 601))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        self.colGraph.setFont(font)
-        self.colGraph.setObjectName("colGraph")
-        self.SpectraButton = QtWidgets.QRadioButton(self.centralwidget)
-        self.SpectraButton.setGeometry(QtCore.QRect(320, 120, 201, 31))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(14)
-        self.SpectraButton.setFont(font)
-        self.SpectraButton.setChecked(True)
-        self.SpectraButton.setObjectName("SpectraButton")
-        self.Derivative_1_Button = QtWidgets.QRadioButton(self.centralwidget)
-        self.Derivative_1_Button.setGeometry(QtCore.QRect(540, 120, 211, 31))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(14)
-        self.Derivative_1_Button.setFont(font)
-        self.Derivative_1_Button.setObjectName("Derivative_1_Button")
-        self.Derivative_2_Button = QtWidgets.QRadioButton(self.centralwidget)
-        self.Derivative_2_Button.setGeometry(QtCore.QRect(770, 120, 211, 31))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(14)
-        self.Derivative_2_Button.setFont(font)
-        self.Derivative_2_Button.setObjectName("Derivative_2_Button")
-        self.CloseButton = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.Home())
-        self.CloseButton.setGeometry(QtCore.QRect(600, 810, 80, 25))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.CloseButton.setFont(font)
-        self.CloseButton.setObjectName("CloseButton")
-        ColumnWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(ColumnWindow)
-        self.statusbar.setObjectName("statusbar")
-        ColumnWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(ColumnWindow)
-        QtCore.QMetaObject.connectSlotsByName(ColumnWindow)
-
-
-    def retranslateUi(self, ColumnWindow):
-        _translate = QtCore.QCoreApplication.translate
-        ColumnWindow.setWindowTitle(_translate("ColumnWindow", "MainWindow"))
-        self.label_3.setText(_translate("ColumnWindow", "<html><head/><body><p align=\"center\">"
-                                                        "Введите номера столбцов:</p></body></html>"))
-        self.pushButton.setText(_translate("ColumnWindow", "Принять"))
-        self.SpectraButton.setText(_translate("ColumnWindow", "Для самих спектров"))
-        self.Derivative_1_Button.setText(_translate("ColumnWindow", "Для 1-й производной"))
-        self.Derivative_2_Button.setText(_translate("ColumnWindow", "Для 2-й производной"))
-        self.CloseButton.setText(_translate("ColumnWindow", "Назад"))
 
 
 class MplCanvas(Canvas):
     def __init__(self, signal):
-        self.fig = Figure(figsize=(16, 16), dpi=100)
+        dpi = 100
+        self.fig = Figure(figsize=(1240/dpi, 600/dpi), dpi=dpi)
         if signal == 1:
             self.ax = self.fig.add_subplot(111)
         elif signal == 2:
@@ -249,16 +154,12 @@ class MplCanvas(Canvas):
         Canvas.__init__(self, self.fig)
         Canvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         Canvas.updateGeometry(self)
-        if signal == 3:
-            self.ax.mouse_init()
-        else:
-            pass
 
 
 class MplWidget(QtWidgets.QWidget):
     def __init__(self, signal, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        self.canvas = MplCanvas(signal=signal)
+        self.canvas = MplCanvas(signal)
         self.toolbar = NavigationToolbar(self.canvas, self, True)
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(self.canvas)

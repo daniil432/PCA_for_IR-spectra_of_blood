@@ -1,88 +1,31 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+from PyQt5 import QtWidgets
+from PyQt5.uic import loadUi
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from numpy import array
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-class Ui_AverageWindow(object):
-    def Signal(self, main):
-        self.main = main
+class AverWin(QDialog):
+    def __init__(self, SpeAn):
+        self.SpeAn = SpeAn
+        super(AverWin, self).__init__()
+        loadUi("C:\\PCA_with_R\\AverageWindow.ui", self)
+        self.RatioWidget = RatioWidgetAverage(self.SpeAn, self.RatioWidget)
+        self.WaveWidget = WaveWidgetAverage(self.SpeAn, self.WaveWidget)
+        self.CloseButton.clicked.connect(self.close)
 
 
-    def Home(self):
-        self.AverageWindow.close()
-        self.SecondWindow.show()
-
-
-    def setupUi(self, AverageWindow, SecondWindow):
-        self.AverageWindow = AverageWindow
-        self.SecondWindow = SecondWindow
-        AverageWindow.setObjectName("AverageWindow")
-        AverageWindow.resize(973, 588)
-        self.centralwidget = QtWidgets.QWidget(AverageWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.WaveWindow = WaveWidget(self.main, self.centralwidget)
-        self.WaveWindow.setGeometry(QtCore.QRect(799, 139, 781, 721))
-        self.WaveWindow.setObjectName("WaveWindow")
-        self.RatioWindow = RatioWidget(self.main, self.centralwidget)
-        self.RatioWindow.setGeometry(QtCore.QRect(20, 139, 781, 721))
-        self.RatioWindow.setObjectName("RatioWindow")
-        """self.RatioWindow = RatioWidget(self.main, self.centralwidget)
-        self.RatioWindow.setGeometry(QtCore.QRect(20, 110, 461, 391))
-        self.RatioWindow.setObjectName("RatioWindow")
-        self.WaveWindow = WaveWidget(self.main, self.centralwidget)
-        self.WaveWindow.setGeometry(QtCore.QRect(490, 110, 461, 391))
-        self.WaveWindow.setObjectName("WaveWindow")"""
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(26, 12, 921, 91))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(12)
-        self.label.setFont(font)
-        self.label.setWordWrap(True)
-        self.label.setObjectName("label")
-        self.CloseButton = QtWidgets.QPushButton(self.centralwidget, clicked=lambda: self.Home())
-        self.CloseButton.setGeometry(QtCore.QRect(760, 850, 75, 23))
-        #self.CloseButton.setGeometry(QtCore.QRect(450, 530, 75, 23))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.CloseButton.setFont(font)
-        self.CloseButton.setObjectName("CloseButton")
-        AverageWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(AverageWindow)
-        self.statusbar.setObjectName("statusbar")
-        AverageWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(AverageWindow)
-        QtCore.QMetaObject.connectSlotsByName(AverageWindow)
-
-
-    def retranslateUi(self, AverageWindow):
-        _translate = QtCore.QCoreApplication.translate
-        AverageWindow.setWindowTitle(_translate("AverageWindow", "MainWindow"))
-        self.label.setText(_translate("AverageWindow", "<html><head/><body><p align=\"center\"><span style=\" "
-                                                       "font-size:14pt;\">"
-                                                       "Средние значения отношений поглощения и длин волн для здоровых"
-                                                       " доноров и пациентов с ММ. Зелёным цветом обозначены доноры, "
-                                                       "красным цветом - больные с секретирующей ММ, синим цветом - "
-                                                       "больные с несекретирующей ММ.</span></p></body></html>"))
-        self.CloseButton.setText(_translate("AverageWindow", "ok"))
-
-
-class MplCanvas(Canvas):
+class MplCanvasAverage(Canvas):
     def __init__(self, type_of_graph):
         if type_of_graph == 'polar':
-            self.fig = Figure(figsize=(14, 14), dpi=100)
+            dpi = 100
+            self.fig = Figure(figsize=(780/dpi, 720/dpi), dpi=dpi)
             self.ax = self.fig.add_subplot(111, projection='polar')
         elif type_of_graph == 'errorbar':
-            self.fig, self.ax = plt.subplots(1, 5, figsize=(14, 14), constrained_layout=True)
+            self.fig, self.ax = plt.subplots(1, 5, figsize=(780/100, 720/100), constrained_layout=True)
             for i in range(len(self.ax)):
                 self.ax[i].xaxis.set_visible(False)
                 self.ax[i].yaxis.set_visible(True)
@@ -92,18 +35,18 @@ class MplCanvas(Canvas):
         Canvas.updateGeometry(self)
 
 
-class RatioWidget(QtWidgets.QWidget):
-    def __init__(self, main, parent=None):
-        self.main = main
+class RatioWidgetAverage(QtWidgets.QWidget):
+    def __init__(self, SpeAn, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.SpeAn = SpeAn
         error_radial = [0.5, 0.4, 0.001, 0.07, 0.01, 0.001, 0.001, 0.2, 0.03, 0.001]
         for i in range(len(error_radial)):
-            error_radial[i] = error_radial[i] * self.main.normal[i]
-        self.result_d = np.append(self.main.result_d, self.main.result_d[0])
-        self.result_p = np.append(self.main.result_p, self.main.result_p[0])
-        self.result_n = np.append(self.main.result_n, self.main.result_n[0])
+            error_radial[i] = error_radial[i] * self.SpeAn.normal[i]
+        self.result_d = np.append(self.SpeAn.result_d, self.SpeAn.result_d[0])
+        self.result_p = np.append(self.SpeAn.result_p, self.SpeAn.result_p[0])
+        self.result_n = np.append(self.SpeAn.result_n, self.SpeAn.result_n[0])
         self.error_radial = np.append(error_radial, error_radial[0])
-        QtWidgets.QWidget.__init__(self, parent)
-        self.canvas = MplCanvas('polar')
+        self.canvas = MplCanvasAverage('polar')
         self.toolbar = NavigationToolbar(self.canvas, self, True)
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(self.canvas)
@@ -127,14 +70,14 @@ class RatioWidget(QtWidgets.QWidget):
             line.get_path()._interpolation_steps = 5
 
 
-class WaveWidget(QtWidgets.QWidget):
-    def __init__(self, main, parent=None):
-        self.main = main
-        g1 = self.main.result_waves_d
-        g2 = self.main.result_waves_p
-        g3 = self.main.result_waves_n
+class WaveWidgetAverage(QtWidgets.QWidget):
+    def __init__(self, SpeAn, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        self.canvas = MplCanvas('errorbar')
+        self.SpeAn = SpeAn
+        g1 = self.SpeAn.result_waves_d
+        g2 = self.SpeAn.result_waves_p
+        g3 = self.SpeAn.result_waves_n
+        self.canvas = MplCanvasAverage('errorbar')
         self.toolbar = NavigationToolbar(self.canvas, self, True)
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(self.canvas)
@@ -143,8 +86,8 @@ class WaveWidget(QtWidgets.QWidget):
         self.setLayout(self.vbl)
         cat_par = ['Amide-I', 'Min 1-2', 'Amide-II', 'Min 2-3', 'Amide-III']
         width = 0.3
-        error_d = array([0.89, 0.364, 0.625, 0.483, 0.246]).T
-        error_p = array([0.1, 0.3, 0.2, 0.4, 0.5]).T
+        error_d = np.array([0.89, 0.364, 0.625, 0.483, 0.246]).T
+        error_p = np.array([0.1, 0.3, 0.2, 0.4, 0.5]).T
         bottom = [1638.5, 1595.5, 1569.5, 1503.5, 1448.5]
         for index in range(len(g1)):
             self.canvas.ax[index].bar(1 - width, g1[index] - bottom[index], width=0.3,
