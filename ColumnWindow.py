@@ -98,12 +98,6 @@ class ColWin(QDialog):
         ys = list(self.p_matrix[:, first_column])
         xs = self.waves_for_graph
         axs.scatter(xs, ys, color="black", marker="o", s=12)
-        plt.show()
-
-        self.x = self.p_matrix[:, first_column]
-        self.y = self.p_matrix[:, second_column]
-        self.colGraph.canvas.ax.clear()
-        self.colGraph.canvas.ax.scatter(self.x, self.y, color="black", marker="o", s=12)
         plt.axvline(x=1652.5, color='red', label='Alpha-helices', linewidth=3.5, alpha=0.5)
         plt.axvline(x=1629.5, color='blue', label='Beta-sheets', linewidth=11.5, alpha=0.5)
         plt.axvline(x=1682.5, color='blue', label='Beta-sheets', linewidth=12.5, alpha=0.5)
@@ -113,6 +107,12 @@ class ColWin(QDialog):
         plt.axvline(x=1684, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
         plt.axvline(x=1690, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
         plt.axvline(x=1647, color='orange', label='Random-coil', linewidth=2, alpha=0.5)
+        plt.show()
+
+        self.x = self.p_matrix[:, first_column]
+        self.y = self.p_matrix[:, second_column]
+        self.colGraph.canvas.ax.clear()
+        self.colGraph.canvas.ax.scatter(self.x, self.y, color="black", marker="o", s=12)
         self.colGraph.canvas.draw()
 
 

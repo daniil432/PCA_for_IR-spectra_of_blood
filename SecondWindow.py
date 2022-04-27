@@ -48,7 +48,7 @@ class SecWin(QDialog):
         if self.pathText.toPlainText() != '':
             input_data = self.Diapason_choose.toPlainText()
         else:
-            input_data = "1500-1525"
+            input_data = "1700-1600"
         research_name = self.Research_name.toPlainText()
         if self.pathText.toPlainText() != '':
             path_dpt = self.pathText.toPlainText()
@@ -83,9 +83,9 @@ class SecWin(QDialog):
         der1graph = self.SpeAn.derivative_function(self.SpeAn.all_samples_for_derivative)
         der2graph = self.SpeAn.derivative_function(der1graph)
 
-        xd, yd = der2graph[0], der2graph[1]
-        plt.figure()
-        plt.plot(xd, yd, '-', linewidth=4, label='Data')
+        # xd, yd = der2graph[0], der2graph[1]
+        # plt.figure()
+        # plt.plot(xd, yd, '-', linewidth=4, label='Data')
         # plt.show()
         # self.SpeAn.fitting(der2graph, 4)
         der1pca = der1graph[1:]
