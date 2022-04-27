@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QFileDialog
 from datetime import datetime
 import matplotlib.pyplot as plt
-from PyQt5 import QtWidgets
 import ColumnWindow
 import AverageWindow
 import PatientWindow
