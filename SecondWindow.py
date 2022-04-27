@@ -79,6 +79,7 @@ class SecWin(QDialog):
         self.SpeAn.calculate_ratio()
         self.SpeAn.calculate_and_sort_eigenvalues_and_vectors(self.SpeAn.input_matrix)
         self.t_matrix_pca, self.p_matrix_pca = self.SpeAn.calculate_t_and_p_matrix()
+        self.SpeAn.show_graphic_of_eigenvalues_and_pc()
 
         der1graph = self.SpeAn.derivative_function(self.SpeAn.all_samples_for_derivative)
         der2graph = self.SpeAn.derivative_function(der1graph)
@@ -120,14 +121,14 @@ class SecWin(QDialog):
         ui_ColWin = ColumnWindow.ColWin(SpeAn=self.SpeAn, signal=2, t_pca=self.t_matrix_pca,
                                         p_pca=self.p_matrix_pca, t_der1=self.t_matrix_der1,
                                         p_der1=self.p_matrix_der1, t_der2=self.t_matrix_der2,
-                                        p_der2=self.p_matrix_der2, waves=self.waves)
+                                        p_der2=self.p_matrix_der2, waves=self.waves_loadings)
         ui_ColWin.exec()
 
     def scores3D(self):
         ui_ColWin = ColumnWindow.ColWin(SpeAn=self.SpeAn, signal=3, t_pca=self.t_matrix_pca,
                                         p_pca=self.p_matrix_pca, t_der1=self.t_matrix_der1,
                                         p_der1=self.p_matrix_der1, t_der2=self.t_matrix_der2,
-                                        p_der2=self.p_matrix_der2, waves=self.waves)
+                                        p_der2=self.p_matrix_der2, waves=self.waves_loadings)
         ui_ColWin.exec()
 
     def openAverage(self):

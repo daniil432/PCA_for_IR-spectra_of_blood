@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutWindow</class>
+ <widget class="QMainWindow" name="AboutWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>875</width>
+    <height>677</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+    <pointsize>12</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>-4</x>
+      <y>0</y>
+      <width>881</width>
+      <height>651</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>3</number>
+    </property>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Что программа может</string>
+     </attribute>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>861</width>
+        <height>591</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Надо дописать&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Про формат файлов</string>
+     </attribute>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>861</width>
+        <height>591</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Для того, чтобы программа могла прочитать файлы, они должны иметь расширение &amp;quot;.dpt&amp;quot;. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Файл должен выглядеть следующим образом: в каждой строке содержится волновое число, затем через запятую величина поглощения на данном волновом числе. Ниже представлен пример:&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;3999.45359,0.00184&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;3998.97144,0.00188&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Названия файлов должны быть записаны следующим образом: на первом месте стоит буква, определяющая принадлежность пробы к той или иной категории образцов, далее без разделителей пишется номер пробы, после чего может следовать любая дополнительная информация после разделителя. При любом другом формате записи названия файла программа может начать некорректно работать/воспринимать образцы.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; В данной программе реализовано разделение образцов по цветам в зависимости от буквы, определяющей категорию пробы. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;- Для здоровых доноров это буква D, точки им соответствующие на графиках будут зелеными. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;- Для секретирующих пациентов это буквы M и S, точки для них будут красными.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;- Для несекретирующих пациентов это буква N, точки для них будут синими.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Про воспроизведение готовых исследований</string>
+     </attribute>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>861</width>
+        <height>591</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Данная программа после обработки спектров и их анализа при помощи МГК сохраняет некоторое количество файлов в формате &amp;quot;.csv&amp;quot;. Они могут быть использованы для повторного воспроизведения эксперимента без необходимости повторных рассчётов, и позволяют сохранить результаты на будущее.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Программа сохраняет имена файлов, матрицы T и P для спектров и производных от спектров, которые далее применяются для постройки графиков главных компонент, а также отношения поглощений исследуемых полос поглощения и волновые числа, на которых они находятся. &lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Готовые исследования можно найти в папке &amp;quot;output_csv&amp;quot;, которая находится в папке с самой программой. Их можно загружать в папку &amp;quot;input_csv&amp;quot;, чтобы программа их считала и показала результат обработки.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Не рекомендуется редактировать csv-файлы, так как программа может прекратить свою работу, если обнаружит что-то, что она не способна прочитать.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>О нас</string>
+     </attribute>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>861</width>
+        <height>481</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Разработчики:&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Чернышев Даниил: lfybbk1399123@gmail.com&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Реализация МГК, производной, написание кода, перенос программы в оконный интерфейс.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Загальский Дмитрий: pukiman555@mail.ru&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Написание кода, первичная реализация программы, консультация по программированию.&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Научный руководитель:&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;•&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt; Поляничко Александр Михайлович: polyanichko@gmail.com&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

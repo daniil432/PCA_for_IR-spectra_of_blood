@@ -21,7 +21,7 @@ class ColWin(QDialog):
         self.p_matrix_der1 = p_der1
         self.t_matrix_der2 = t_der2
         self.p_matrix_der2 = p_der2
-        self.waves_loadings = waves
+        self.waves = waves
         self.colGraph = MplWidget(signal, self.colGraph)
         self.pushButton.clicked.connect(self.showGraphColumn)
         self.CloseButton.clicked.connect(self.close)
@@ -95,7 +95,7 @@ class ColWin(QDialog):
 
         figs = plt.figure()
         axs = figs.add_subplot(111)
-        ys = self.p_matrix[:, first_column]
+        ys = list(self.p_matrix[:, first_column])
         xs = self.waves_for_graph
         axs.scatter(xs, ys, color="black", marker="o", s=12)
         plt.show()
