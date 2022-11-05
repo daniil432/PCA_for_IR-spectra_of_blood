@@ -1,23 +1,8 @@
+import re
 import os
 import glob
-import copy
-import re
 import numpy as np
 import pandas as pd
-from sklearn import svm
-from subprocess import run
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.naive_bayes import GaussianNB
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.metrics import pairwise_distances_argmin, accuracy_score
-
-
-R_BIN_PATH = 'C:\\Program Files\\R\\R-4.0.4\\bin'
 
 
 class SpectraReader(object):
@@ -46,9 +31,9 @@ class SpectraReader(object):
             cutted_matrix = pd.DataFrame(columns=self.spectra_matrix.columns)
         input_range = input_range.replace(' ', '')
         input_range = [list(map(int, input_range.split(',')[i].split('-'))) for i in range(len(input_range.split(',')))]
-        for waves in input_range:
-            temp = self.spectra_matrix.drop(self.spectra_matrix[self.spectra_matrix['waves'] < min(waves)].index)
-            temp = temp.drop(temp[temp['waves'] > max(waves)].index)
+        for wave in input_range:
+            temp = self.spectra_matrix.drop(self.spectra_matrix[self.spectra_matrix['waves'] < min(wave)].index)
+            temp = temp.drop(temp[temp['waves'] > max(wave)].index)
             if separate_df in ['y', 'Y']:
                 cutted_matrix.append(temp.reset_index(drop=True))
             else:

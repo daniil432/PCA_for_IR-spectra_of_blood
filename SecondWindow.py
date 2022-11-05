@@ -1,16 +1,16 @@
+import ColumnWindow
+import AverageWindow
+import PatientWindow
+import AnalyzeSpectra
 from PyQt5.uic import loadUi
+from datetime import datetime
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QFileDialog
-from datetime import datetime
-import AnalyzeSpectra
-import AverageWindow
-import ColumnWindow
-import PatientWindow
 
 
 class SecWin(QDialog):
-    def __init__(self):
-        super(SecWin, self).__init__()
+    def __init__(self, flags, *args, **kwargs):
+        super().__init__(flags, *args, **kwargs)
         loadUi("C:\\PCA_with_R\\SecondWindow.ui", self)
         self.Accept_Button.setEnabled(True)
         self.Diapason_choose.setEnabled(True)
@@ -85,7 +85,10 @@ class SecWin(QDialog):
         self.ratio_waves, self.ratio = average_res.normalize_average(ratio_waves, self.ratio)
 
         pca_res = AnalyzeSpectra.PcaAnal(matrix_pca)
-        pca_res.normalize()
+        if normalization == 'y':
+            pca_res.normalize()
+        else:
+            pass
         self.t_matrix, self.p_matrix = pca_res.performPCA()
 
         deriv1 = AnalyzeSpectra.derivative_df(matrix_pca)
