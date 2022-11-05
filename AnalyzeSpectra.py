@@ -120,15 +120,17 @@ class AverageAnal(object):
                 result_dict[key][component + 2] = create_errors_for_values([list(i) for i in zip(*ratio_waves[key][component])])
         return result_dict
 
-    def normalize_average(self, data, norm_key='D'):
-        for ind in range(len(data[norm_key][0])):
-            for key in data.keys():
+    def normalize_average(self, average, ratio, norm_key='D'):
+        for ind in range(len(average[norm_key][0])):
+            for key in average.keys():
                 if key != norm_key:
-                    data[key][2][ind] = data[key][2][ind] * (1/data[norm_key][0][ind])
-                    data[key][0][ind] = data[key][0][ind] * (1/data[norm_key][0][ind])
-            data[norm_key][2][ind] = data[norm_key][2][ind] * (1 / data[norm_key][0][ind])
-            data[norm_key][0][ind] = data[norm_key][0][ind] * (1 / data[norm_key][0][ind])
-        return data
+                    average[key][2][ind] = average[key][2][ind] * (1/average[norm_key][0][ind])
+                    average[key][0][ind] = average[key][0][ind] * (1/average[norm_key][0][ind])
+            for sample in range(len(ratio)):
+                ratio[sample][ind] = ratio[sample][ind] * (1/average[norm_key][0][ind])
+            average[norm_key][2][ind] = average[norm_key][2][ind] * (1 / average[norm_key][0][ind])
+            average[norm_key][0][ind] = average[norm_key][0][ind] * (1 / average[norm_key][0][ind])
+        return average, ratio
 
 
 class PcaAnal(object):

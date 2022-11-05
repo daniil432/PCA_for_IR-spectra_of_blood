@@ -48,8 +48,8 @@ class PatWin(QDialog):
         else:
             self.Patients = [1, 2, 3]
 
-        secr_intensities = [] 
-        nesecr_intensities = [] 
+        secr_intensities = []
+        nesecr_intensities = []
         pat_wave = []
         non_wave = []
         for name in range(len(self.filenames)):
@@ -73,10 +73,10 @@ class PatWin(QDialog):
         for sample in nesecr_intensities:
             sample.append(sample[0])
         self.errors = np.append(self.errors, self.errors[0])
-        for sample in secr_intensities:
-            self.RatioWidget.canvas.ax.errorbar(theta, sample, linewidth=2, xerr=0, yerr=0, color="red")
         self.RatioWidget.canvas.ax.errorbar(theta, self.averD, linewidth=2, xerr=0, yerr=self.errors,
                                             color="darkgreen", ecolor='black')
+        for sample in secr_intensities:
+            self.RatioWidget.canvas.ax.errorbar(theta, sample, linewidth=2, xerr=0, yerr=0, color="red")
         for sample in nesecr_intensities:
             self.RatioWidget.canvas.ax.errorbar(theta, sample, linewidth=2, xerr=0, yerr=0, color="mediumblue")
         _ran = [*range(0, 360, math.floor(360 / len(labels)))]

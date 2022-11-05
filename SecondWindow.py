@@ -82,7 +82,7 @@ class SecWin(QDialog):
         average_res = AnalyzeSpectra.AverageAnal(self.filenames)
         self.ratio, self.waves = average_res.get_waves_ratios(matrix_w_r)
         ratio_waves = average_res.calc_average(self.ratio, self.waves)
-        self.ratio_waves = average_res.normalize_average(ratio_waves)
+        self.ratio_waves, self.ratio = average_res.normalize_average(ratio_waves, self.ratio)
 
         pca_res = AnalyzeSpectra.PcaAnal(matrix_pca)
         pca_res.normalize()
