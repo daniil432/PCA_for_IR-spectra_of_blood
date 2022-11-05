@@ -2,15 +2,14 @@ from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QFileDialog
 from datetime import datetime
-import matplotlib.pyplot as plt
-import ColumnWindow
+import AnalyzeSpectra
 import AverageWindow
+import ColumnWindow
 import PatientWindow
 
 
 class SecWin(QDialog):
-    def __init__(self, SpeAn):
-        self.SpeAn = SpeAn
+    def __init__(self):
         super(SecWin, self).__init__()
         loadUi("C:\\PCA_with_R\\SecondWindow.ui", self)
         self.Accept_Button.setEnabled(True)
@@ -27,6 +26,7 @@ class SecWin(QDialog):
         self.clearData.setEnabled(False)
         self.clearData.setEnabled(False)
         self.Return_home.setEnabled(False)
+
         self.Accept_Button.clicked.connect(self.acceptParams)
         # self.Return_home.clicked.connect(self.close)
         self.Scores_2D.clicked.connect(self.scores2D)
@@ -37,18 +37,18 @@ class SecWin(QDialog):
         # self.clearData.clicked.connect(self.rewriteData)
         self.directory_dpt.clicked.connect(self.browseFiles)
         self.Research_name.setPlaceholderText(str(datetime.today().strftime('%Y-%m-%d_%H-%M-%S')))
-        self.Diapason_choose.setPlaceholderText('1500-1525')
         self.pathText.setPlaceholderText('C:\PCA_with_R\input_dpt')
+        self.Diapason_choose.setPlaceholderText("1700-1600")
 
     def browseFiles(self):
         fname = QFileDialog.getExistingDirectory(self, 'Open File', 'C:\PCA_with_R')
         self.pathText.setText(fname)
 
     def acceptParams(self):
-        if self.pathText.toPlainText() != '':
-            input_data = self.Diapason_choose.toPlainText()
+        if self.Diapason_choose.toPlainText() != '':
+            input_range = self.Diapason_choose.toPlainText()
         else:
-            input_data = "1700-1600"
+            input_range = self.Diapason_choose.placeholderText()
         research_name = self.Research_name.toPlainText()
         if self.pathText.toPlainText() != '':
             path_dpt = self.pathText.toPlainText()
@@ -72,68 +72,67 @@ class SecWin(QDialog):
         self.clearData.setEnabled(True)
         self.clearData.setEnabled(True)
         self.Return_home.setEnabled(True)
-        self.SpeAn.read_files(input_data, normalization, path_dpt)
-        self.SpeAn.cutting_spectra_and_finding_ratio()
-        self.SpeAn.sorting_ratio_and_waves_by_names()
-        self.SpeAn.calculate_ratio()
-        self.SpeAn.calculate_and_sort_eigenvalues_and_vectors(self.SpeAn.input_matrix)
-        self.t_matrix_pca, self.p_matrix_pca = self.SpeAn.calculate_t_and_p_matrix()
-        self.SpeAn.show_graphic_of_eigenvalues_and_pc()
 
-        der1graph = self.SpeAn.derivative_function(self.SpeAn.all_samples_for_derivative)
-        der2graph = self.SpeAn.derivative_function(der1graph)
+        research = AnalyzeSpectra.SpectraReader()
+        self.filenames = research.read_spectra(path_dpt=path_dpt)
+        matrix_w_r = research.cut_spectra(separate_df='y', input_range='1600-1650, 1580-1600, 1550-1580, 1520-1550, '
+                                                                       '1500-1525, 1500-1510, 1440-1470')
+        matrix_pca = research.cut_spectra(separate_df='n', input_range=input_range)
 
-        # xd, yd = der2graph[0], der2graph[1]
-        # plt.figure()
-        # plt.plot(xd, yd, '-', linewidth=4, label='Data')
-        # plt.show()
-        # self.SpeAn.fitting(der2graph, 4)
-        der1pca = der1graph[1:]
-        der2pca = der2graph[1:]
-        self.waves = self.SpeAn.all_samples_for_derivative[0]
-        self.SpeAn.derivative_saving(der2graph)
-        self.SpeAn.calculate_and_sort_eigenvalues_and_vectors(der1pca)
-        self.t_matrix_der1, self.p_matrix_der1 = self.SpeAn.calculate_t_and_p_matrix()
-        self.SpeAn.calculate_and_sort_eigenvalues_and_vectors(der2pca)
-        self.t_matrix_der2, self.p_matrix_der2 = self.SpeAn.calculate_t_and_p_matrix()
-        self.waves_loadings = [self.SpeAn.one_wave, der1graph[0], der2graph[0]]
-        self.SpeAn.write_eigenvalues_and_eigenvectors_in_files(research_name, self.t_matrix_pca, self.p_matrix_pca,
-                                                              self.t_matrix_der1, self.p_matrix_der1,
-                                                              self.t_matrix_der2, self.p_matrix_der2)
+        average_res = AnalyzeSpectra.AverageAnal(self.filenames)
+        self.ratio, self.waves = average_res.get_waves_ratios(matrix_w_r)
+        ratio_waves = average_res.calc_average(self.ratio, self.waves)
+        self.ratio_waves = average_res.normalize_average(ratio_waves)
+
+        pca_res = AnalyzeSpectra.PcaAnal(matrix_pca)
+        pca_res.normalize()
+        self.t_matrix, self.p_matrix = pca_res.performPCA()
+
+        deriv1 = AnalyzeSpectra.derivative_df(matrix_pca)
+        deriv2 = AnalyzeSpectra.derivative_df(deriv1)
+
+        pca_deriv1 = AnalyzeSpectra.PcaAnal(deriv1)
+        pca_deriv1.normalize()
+        self.t_matrix_d1, self.p_matrix_d1 = pca_deriv1.performPCA()
+
+        pca_deriv2 = AnalyzeSpectra.PcaAnal(deriv2)
+        pca_deriv2.normalize()
+        self.t_matrix_d2, self.p_matrix_d2 = pca_deriv2.performPCA()
+
+        self.waves_loadings = [matrix_pca[matrix_pca.columns[0]], deriv1[deriv1.columns[0]], deriv2[deriv2.columns[0]]]
+
         self.Scores_2D.setEnabled(True)
         self.Scores_3D.setEnabled(True)
         self.Loadings_2D.setEnabled(True)
         self.Average_all.setEnabled(True)
         self.Patients_button.setEnabled(True)
         self.clearData.setEnabled(True)
-        # self.SpeAn.show_graphic_of_eigenvalues_and_pc()
 
     def scores2D(self):
-        ui_ColWin = ColumnWindow.ColWin(SpeAn=self.SpeAn, signal=1, t_pca=self.t_matrix_pca,
-                                              p_pca=self.p_matrix_pca, t_der1=self.t_matrix_der1,
-                                              p_der1=self.p_matrix_der1, t_der2=self.t_matrix_der2,
-                                              p_der2=self.p_matrix_der2, waves=self.waves_loadings)
+        ui_ColWin = ColumnWindow.ColWin(signal=1, filenames=self.filenames, t_pca=self.t_matrix,
+                                              p_pca=self.p_matrix, t_der1=self.t_matrix_d1,
+                                              p_der1=self.p_matrix_d1, t_der2=self.t_matrix_d2,
+                                              p_der2=self.p_matrix_d2, waves=self.waves_loadings)
         ui_ColWin.exec()
 
-
     def loadings2D(self):
-        ui_ColWin = ColumnWindow.ColWin(SpeAn=self.SpeAn, signal=2, t_pca=self.t_matrix_pca,
-                                        p_pca=self.p_matrix_pca, t_der1=self.t_matrix_der1,
-                                        p_der1=self.p_matrix_der1, t_der2=self.t_matrix_der2,
-                                        p_der2=self.p_matrix_der2, waves=self.waves_loadings)
+        ui_ColWin = ColumnWindow.ColWin(signal=2, filenames=self.filenames, t_pca=self.t_matrix,
+                                        p_pca=self.p_matrix, t_der1=self.t_matrix_d1,
+                                        p_der1=self.p_matrix_d1, t_der2=self.t_matrix_d2,
+                                        p_der2=self.p_matrix_d2, waves=self.waves_loadings)
         ui_ColWin.exec()
 
     def scores3D(self):
-        ui_ColWin = ColumnWindow.ColWin(SpeAn=self.SpeAn, signal=3, t_pca=self.t_matrix_pca,
-                                        p_pca=self.p_matrix_pca, t_der1=self.t_matrix_der1,
-                                        p_der1=self.p_matrix_der1, t_der2=self.t_matrix_der2,
-                                        p_der2=self.p_matrix_der2, waves=self.waves_loadings)
+        ui_ColWin = ColumnWindow.ColWin(signal=3, filenames=self.filenames, t_pca=self.t_matrix,
+                                        p_pca=self.p_matrix, t_der1=self.t_matrix_d1,
+                                        p_der1=self.p_matrix_d1, t_der2=self.t_matrix_d2,
+                                        p_der2=self.p_matrix_d2, waves=self.waves_loadings)
         ui_ColWin.exec()
 
     def openAverage(self):
-        ui_AverWin = AverageWindow.AverWin(SpeAn=self.SpeAn)
+        ui_AverWin = AverageWindow.AverWin(self.ratio_waves)
         ui_AverWin.exec()
 
     def openPatient(self):
-        ui_PatWin = PatientWindow.PatWin(SpeAn=self.SpeAn)
+        ui_PatWin = PatientWindow.PatWin(self.ratio, self.waves, self.ratio_waves, self.filenames)
         ui_PatWin.exec()

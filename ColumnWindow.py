@@ -9,12 +9,12 @@ import os
 
 
 class ColWin(QDialog):
-    def __init__(self, SpeAn, signal, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, waves):
+    def __init__(self, signal, filenames, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, waves):
         super(ColWin, self).__init__()
         print(os.path.dirname(os.path.abspath(__file__)))
         loadUi("C:\\PCA_with_R\\ColumnWindow.ui", self)
-        self.SpeAn = SpeAn
         self.signal = signal
+        self.filenames = filenames
         self.t_matrix_pca = t_pca
         self.p_matrix_pca = p_pca
         self.t_matrix_der1 = t_der1
@@ -28,7 +28,6 @@ class ColWin(QDialog):
 
     def showGraphColumn(self):
         self.radioButtonChecking()
-        self.filenames = self.SpeAn.filenames
         if self.Columns_int.toPlainText() != '':
             Columns_temp = self.Columns_int.toPlainText()
         else:
@@ -86,35 +85,27 @@ class ColWin(QDialog):
                 # plt.annotate(filenames[index], (x[index], y[index]))
         self.colGraph.canvas.draw()
 
-
     def plotLoadings(self):
         first_column = self.Columns[0]
         second_column = self.Columns[1]
         first_column -= 1
         second_column -= 1
 
-        figs = plt.figure()
-        axs = figs.add_subplot(111)
-        ys = list(self.p_matrix[:, first_column])
         xs = self.waves_for_graph
-        axs.scatter(xs, ys, color="black", marker="o", s=12)
-        plt.axvline(x=1652.5, color='red', label='Alpha-helices', linewidth=3.5, alpha=0.5)
-        plt.axvline(x=1629.5, color='blue', label='Beta-sheets', linewidth=11.5, alpha=0.5)
-        plt.axvline(x=1682.5, color='blue', label='Beta-sheets', linewidth=12.5, alpha=0.5)
-        plt.axvline(x=1631, color='blue', label='Beta-sheets', linewidth=1, alpha=0.5)
-        plt.axvline(x=1664, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-        plt.axvline(x=1672, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-        plt.axvline(x=1684, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-        plt.axvline(x=1690, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-        plt.axvline(x=1647, color='orange', label='Random-coil', linewidth=2, alpha=0.5)
-        plt.show()
-
-        self.x = self.p_matrix[:, first_column]
-        self.y = self.p_matrix[:, second_column]
+        ys = list(self.p_matrix[:, first_column])
         self.colGraph.canvas.ax.clear()
-        self.colGraph.canvas.ax.scatter(self.x, self.y, color="black", marker="o", s=12)
+        self.colGraph.canvas.ax.axvline(x=1652.5, color='red', label='Alpha-helices', linewidth=3.5, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1629.5, color='blue', label='Beta-sheets', linewidth=11.5, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1682.5, color='blue', label='Beta-sheets', linewidth=12.5, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1631, color='blue', label='Beta-sheets', linewidth=1, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1664, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1672, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1684, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1690, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
+        self.colGraph.canvas.ax.axvline(x=1647, color='orange', label='Random-coil', linewidth=2, alpha=0.5)
+        self.colGraph.canvas.ax.scatter(xs, ys, color="black", marker="o", s=12)
+        self.colGraph.canvas.ax.invert_xaxis()
         self.colGraph.canvas.draw()
-
 
     def plot3D(self):
         self.colGraph.canvas.ax.clear()
