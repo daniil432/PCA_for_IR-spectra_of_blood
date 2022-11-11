@@ -21,7 +21,7 @@ class PatWin(QDialog):
         self.w_errors = ratio_waves['D'][3]
         self.filenames = filenames
         super(PatWin, self).__init__()
-        loadUi("C:\\PCA_with_R\\PatientWindow.ui", self)
+        loadUi("C:\\PCA_with_R\\interface\\PatientWindow.ui", self)
         self.RatioWidget = RatioWidgetPatient(len(self.waveD), self.RatioWidget)
         self.WaveWidget = WaveWidgetPatient(len(self.waveD), self.WaveWidget)
         self.AcceptButton.clicked.connect(self.showGraph)

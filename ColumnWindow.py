@@ -12,7 +12,7 @@ class ColWin(QDialog):
     def __init__(self, signal, filenames, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, waves):
         super(ColWin, self).__init__()
         print(os.path.dirname(os.path.abspath(__file__)))
-        loadUi("C:\\PCA_with_R\\ColumnWindow.ui", self)
+        loadUi("C:\\PCA_with_R\\interface\\ColumnWindow.ui", self)
         self.signal = signal
         self.filenames = filenames
         self.t_matrix_pca = t_pca

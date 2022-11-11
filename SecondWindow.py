@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import QFileDialog
 
 
 class SecWin(QDialog):
-    def __init__(self, flags, *args, **kwargs):
-        super().__init__(flags, *args, **kwargs)
-        loadUi("C:\\PCA_with_R\\SecondWindow.ui", self)
+    def __init__(self):
+        super().__init__()
+        loadUi("C:\\PCA_with_R\\interface\\SecondWindow.ui", self)
         self.Accept_Button.setEnabled(True)
         self.Diapason_choose.setEnabled(True)
         self.pathText.setEnabled(True)

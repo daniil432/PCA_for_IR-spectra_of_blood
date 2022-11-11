@@ -15,7 +15,7 @@ from math import acos, sqrt
 class AverWin(QDialog):
     def __init__(self, ratio_waves):
         super(AverWin, self).__init__()
-        loadUi("C:\\PCA_with_R\\AverageWindow.ui", self)
+        loadUi("C:\\PCA_with_R\\interface\\AverageWindow.ui", self)
         self.tab_mm.RatioWidget = RatioWidgetAverage(ratio_waves, 1, self.RatioWidget)
         self.tab_non_mm.RatioWidget = RatioWidgetAverage(ratio_waves, 2, self.RatioWidget_2)
         self.tab_wave.WaveWidget = WaveWidgetAverage(ratio_waves, self.WaveWidget)

@@ -9,7 +9,7 @@ import sys
 class FirstWin(QMainWindow):
     def __init__(self):
         super().__init__()
-        loadUi("C:\\PCA_with_R\\FirstWindow.ui", self)
+        loadUi("C:\\PCA_with_R\\interface\\FirstWindow.ui", self)
         self.button_dpt.clicked.connect(self.openDpt)
         self.button_csv.setEnabled(False)
         self.directory_csv.setEnabled(False)
