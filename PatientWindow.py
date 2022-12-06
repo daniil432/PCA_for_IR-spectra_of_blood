@@ -12,20 +12,27 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 
 
 class PatWin(QDialog):
-    def __init__(self, ratio, waves, ratio_waves, filenames):
+    def __init__(self, parent, ratio, waves, ratio_waves, filenames):
+        super(PatWin, self).__init__(parent)
+        loadUi("C:\\PCA_with_R\\interface\\PatientWindow.ui", self)
+        self.parent = parent
         self.ratio = ratio
         self.waves = waves
+        self.filenames = filenames
         self.averD = ratio_waves['D'][0]
         self.waveD = ratio_waves['D'][1]
         self.errors = ratio_waves['D'][2]
         self.w_errors = ratio_waves['D'][3]
-        self.filenames = filenames
-        super(PatWin, self).__init__()
-        loadUi("C:\\PCA_with_R\\interface\\PatientWindow.ui", self)
         self.RatioWidget = RatioWidgetPatient(len(self.waveD), self.RatioWidget)
         self.WaveWidget = WaveWidgetPatient(len(self.waveD), self.WaveWidget)
         self.AcceptButton.clicked.connect(self.showGraph)
-        self.CloseButton.clicked.connect(self.close)
+        self.Patient_int.returnPressed.connect(self.AcceptButton.click)
+        self.CloseButton.clicked.connect(self.closeEvent)
+        QAction("Quit", self).triggered.connect(self.closeEvent)
+
+    def closeEvent(self, event):
+        self.parent.show()
+        self.close()
 
     def showGraph(self):
         self.RatioWidget.canvas.ax.clear()
@@ -35,8 +42,8 @@ class PatWin(QDialog):
         self.WaveWidget.canvas.axs[3].clear()
         self.WaveWidget.canvas.axs[4].clear()
 
-        if self.Patient_int.toPlainText() != '':
-            Patients_temp = self.Patient_int.toPlainText()
+        if self.Patient_int.text() != '':
+            Patients_temp = self.Patient_int.text()
             Patients_temp = Patients_temp.replace(' ', '')
             Patients_temp = Patients_temp.replace('.', ',')
             input_temp = Patients_temp.split(',')
@@ -141,10 +148,9 @@ class RatioWidgetPatient(QtWidgets.QWidget):
     def __init__(self, numb, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.canvas = MplCanvasPatient('polar', numb)
-        self.toolbar = NavigationToolbar(self.canvas, self, True)
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(self.canvas)
-        self.vbl.addWidget(self.canvas)
+        self.toolbar = NavigationToolbar(self.canvas, self)
         self.vbl.addWidget(self.toolbar)
         self.setLayout(self.vbl)
 
@@ -153,9 +159,8 @@ class WaveWidgetPatient(QtWidgets.QWidget):
     def __init__(self, numb, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.canvas = MplCanvasPatient('errorbar', numb)
-        self.toolbar = NavigationToolbar(self.canvas, self, True)
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(self.canvas)
-        self.vbl.addWidget(self.canvas)
+        self.toolbar = NavigationToolbar(self.canvas, self)
         self.vbl.addWidget(self.toolbar)
         self.setLayout(self.vbl)

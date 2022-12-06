@@ -1,5 +1,6 @@
 import copy
 import math
+import random
 from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
 from PyQt5.uic import loadUi
@@ -12,28 +13,36 @@ from matplotlib.lines import Line2D
 from math import acos, sqrt
 
 
-class AverWin(QDialog):
-    def __init__(self, ratio_waves):
-        super(AverWin, self).__init__()
+class AverWin(QMainWindow):
+    def __init__(self, parent, ratio_waves):
+        super(AverWin, self).__init__(parent)
         loadUi("C:\\PCA_with_R\\interface\\AverageWindow.ui", self)
+        self.parent = parent
         self.tab_mm.RatioWidget = RatioWidgetAverage(ratio_waves, 1, self.RatioWidget)
         self.tab_non_mm.RatioWidget = RatioWidgetAverage(ratio_waves, 2, self.RatioWidget_2)
         self.tab_wave.WaveWidget = WaveWidgetAverage(ratio_waves, self.WaveWidget)
-        self.CloseButton.clicked.connect(self.close)
+        self.CloseButton.clicked.connect(self.closeEvent)
+        QAction("Quit", self).triggered.connect(self.closeEvent)
+
+
+def closeEvent(self, event):
+        self.parent.show()
+        self.close()
 
 
 class MplCanvasAverage(Canvas):
     def __init__(self, type_of_graph, data_len):
         dpi = 100
         if type_of_graph == 'polar':
-            self.fig = Figure(figsize=(1640/dpi, 750/dpi), dpi=dpi)
+            self.fig = Figure(figsize=(1400/dpi, 700/dpi), dpi=dpi) # for saving dpi = 600 and no figsize
             self.ax = self.fig.add_subplot(111, projection='polar')
+            self.ax.tick_params(direction='out', zorder=1)
         elif type_of_graph == 'errorbar':
-            self.fig, self.ax = plt.subplots(1, data_len, figsize=(1640/dpi, 750/dpi), constrained_layout=True)
+            self.fig, self.ax = plt.subplots(1, data_len, dpi=dpi, figsize=(1400/dpi, 700/dpi))
             for i in range(len(self.ax)):
                 self.ax[i].xaxis.set_visible(False)
                 self.ax[i].yaxis.set_visible(True)
-                self.ax[i].tick_params(labelsize=16, direction='in')
+                self.ax[i].tick_params(labelsize=7, direction='in')
         Canvas.__init__(self, self.fig)
         Canvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         Canvas.updateGeometry(self)
@@ -76,56 +85,51 @@ class RatioWidgetAverage(QtWidgets.QWidget):
             result_n = [None] * len(result_d)
 
         canvas = MplCanvasAverage('polar', len(result_d)-1)
-        self.toolbar = NavigationToolbar(canvas, self, True)
-        self.vbl = QtWidgets.QVBoxLayout()
-        self.vbl.addWidget(canvas)
-        self.vbl.addWidget(canvas)
-        self.vbl.addWidget(self.toolbar)
-        self.setLayout(self.vbl)
-        labels = ['A1/Min1', 'A1/s.ch.', 'A1/Min2', 'A1/Tyr', 'A1/Min3', "A1/A2'",
-                  'Min1/s.ch.', 'Min1/Min2', 'Min1/Tyr', 'Min1/Min3', "Min1/A2'",
-                  's.ch./Min2', 's.ch./Tyr', 's.ch./Min3', "s.ch./A2'",
-                  'Min2/Tyr', 'Min2/Min3', "Min2/A2'",
-                  'Tyr/Min3', "Tyr/A2'",
-                  "Min3/A2'"]
-        #drop_ = [20, 19, 18, 17, 16, 15, 9, 6, 5, 4, 3, 2] # Временно
-        #for ind in range(len(drop_)): # Временно
-        #    labels.pop(drop_[ind]) # Временно
-        #    self.result_d = np.delete(self.result_d, drop_[ind]) # Временно
-        #    self.result_p = np.delete(self.result_p, drop_[ind]) # Временно
-        #    self.result_n = np.delete(self.result_n, drop_[ind]) # Временно
-        #    error_radial_d = np.delete(error_radial_d, drop_[ind]) # Временно
-        #    error_radial_p = np.delete(error_radial_p, drop_[ind]) # Временно
-        #    error_radial_n = np.delete(error_radial_n, drop_[ind]) # Временно
+        labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$', "M$_{I}$/M$_{II}$",
+                  'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "M$_{II}$/N$_{1}$",
+                  'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{II}$/M$_{S}$",
+                  'M$_{T}$/N$_{2}$', 'N$_{2}$/N$_{3}$', "M$_{II}$/N$_{2}$",
+                  'M$_{T}$/N$_{3}$', "M$_{II}$/M$_{T}$",
+                  "M$_{II}$/N$_{3}$"]
+
+        # drop_ = [20, 19, 18, 17, 16, 15, 9, 6, 5, 4, 3, 2] # Временно убираем элементы из обзора для статьи...
+        # for ind in range(len(drop_)): # Временно
+        #     labels.pop(drop_[ind]) # Временно
+        #     result_d = np.delete(result_d, drop_[ind]) # Временно
+        #     result_p = np.delete(result_p, drop_[ind]) # Временно
+        #     result_n = np.delete(result_n, drop_[ind]) # Временно
+        #     error_radial_d = np.delete(error_radial_d, drop_[ind]) # Временно
+        #     error_radial_p = np.delete(error_radial_p, drop_[ind]) # Временно
+        #     error_radial_n = np.delete(error_radial_n, drop_[ind]) # Временно
         theta = np.linspace(start=0, stop=2 * np.pi, num=len(result_d) - 1, endpoint=False)
         theta = np.concatenate((theta, [theta[0]]))
         canvas.ax.plot(theta, result_d, linewidth=2, linestyle='-', color="green")
-        canvas.ax.bar(theta, result_d, linewidth=0, yerr=error_radial_d, capsize=0.0001, color="green",
-                           fill=None, ecolor="green", alpha=0.8)
+        canvas.ax.bar(theta, result_d, linewidth=0, yerr=error_radial_d, capsize=0.00008, color="green",
+                      fill=None, ecolor="green", alpha=0.8)
         if mode == 1:
             if None in result_p:
                 pass
             else:
                 canvas.ax.plot(theta, result_p, linewidth=2, linestyle='--', color="red")
-                canvas.ax.bar(theta, result_p, linewidth=0, yerr=error_radial_p, capsize=0.0001, color="red",
+                canvas.ax.bar(theta, result_p, linewidth=0, yerr=error_radial_p, capsize=0.00008, color="red",
                               fill=None, ecolor="red", alpha=0.8)
         else:
             if None in result_n:
                 pass
             else:
                 canvas.ax.plot(theta, result_n, linewidth=2, linestyle='--', color="blue")
-                canvas.ax.bar(theta, result_n, linewidth=0, yerr=error_radial_n, capsize=0.0001, color="blue",
+                canvas.ax.bar(theta, result_n, linewidth=0, yerr=error_radial_n, capsize=0.00008, color="blue",
                               fill=None, ecolor="blue", alpha=0.8)
         _ran = [*range(0, 360, math.floor(360 / len(labels)))]
         if len(_ran) > len(labels):
             _ran.pop(-1)
-        canvas.ax.set_thetagrids(_ran, labels, fontsize=16)
-        plt.yticks(np.arange(0, 1.5, 0.2), fontsize=16)
-        legend_label = {1: "Secretory MM patients", 2: "Non-secretory MM patients"}
+        canvas.ax.set_thetagrids(_ran, labels, fontsize=10)
+        plt.yticks(np.arange(0, 1.5, 0.2), fontsize=10)
+        legend_label = {1: "Пациенты с секр. ММ", 2: "Пациенты с не секр. ММ"}
         canvas.ax.legend([Line2D([0], [0], linestyle='-', color='g', lw=3),
-                               Line2D([0], [0], linestyle='--', color=['r' if mode == 1 else 'b'][0], lw=3)],
-                              ['Healthy donors', legend_label[mode]], prop={'size': 16},
-                              loc='upper center', bbox_to_anchor=(1.4, 0.05), fancybox=True, shadow=True)
+                          Line2D([0], [0], linestyle='--', color=['r' if mode == 1 else 'b'][0], lw=3)],
+                         ['Здоровые доноры', legend_label[mode]], prop={'size': 12},
+                         loc='upper center', bbox_to_anchor=(0.005, 1.165), fancybox=True, shadow=True)
         canvas.ax.set(facecolor='#f3f3f3')
         canvas.ax.set_theta_offset(np.pi / 2)
         canvas.ax.set_theta_direction(-1)
@@ -149,6 +153,14 @@ class RatioWidgetAverage(QtWidgets.QWidget):
                 correct_errorbar(canvas.ax, barlen=0.1, errorline=_indexes[i], color=_color[mode][i], mode=mode)
         except:
             pass
+        self.vbl = QtWidgets.QVBoxLayout()
+        self.vbl.addWidget(canvas)
+        self.toolbar = NavigationToolbar(canvas, self)
+        self.vbl.addWidget(self.toolbar)
+        self.setLayout(self.vbl)
+        # r = random.randint(1, 30)
+        # canvas.fig.savefig(f'fig_en_{r}.tiff')
+        # canvas.fig.savefig(f'fig_en_{r}.eps')
 
 
 class WaveWidgetAverage(QtWidgets.QWidget):
@@ -175,19 +187,14 @@ class WaveWidgetAverage(QtWidgets.QWidget):
         else:
             error_n = [None] * len(g1)
 
-        cat_par = ['Amide-I', 'Min 1', 'Side chains', 'Min2', 'Tyr', 'Min 3', "Amide-II'"]
-        #drop_ = [6]
-        #for ind in range(len(drop_)):
-        #    cat_par.pop(drop_[ind])
-        #    g1 = np.delete(g1, drop_[ind]) # Временно
-        #    g2 = np.delete(g2, drop_[ind]) # Временно
-        #    g3 = np.delete(g3, drop_[ind]) # Временно
+        cat_par = ['M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II}$"]
+        # drop_ = [6] # Временно убираем элементы из обзора для статьи
+        # for ind in range(len(drop_)): # Временно
+        #     cat_par.pop(drop_[ind]) # Временно
+        #     g1 = np.delete(g1, drop_[ind]) # Временно
+        #     g2 = np.delete(g2, drop_[ind]) # Временно
+        #     g3 = np.delete(g3, drop_[ind]) # Временно
         canvas = MplCanvasAverage('errorbar', len(g1))
-        self.toolbar = NavigationToolbar(canvas, self, True)
-        self.vbl = QtWidgets.QVBoxLayout()
-        self.vbl.addWidget(canvas)
-        self.vbl.addWidget(self.toolbar)
-        self.setLayout(self.vbl)
         width = 0.3
         bottom = []
         for wave in range(len(g1)):
@@ -200,15 +207,24 @@ class WaveWidgetAverage(QtWidgets.QWidget):
             bottom.append(min_wave - 1.5)
         for index in range(len(g1)):
             canvas.ax[index].bar(1 - width, g1[index] - bottom[index], width=0.3,
-                                      bottom=bottom[index], yerr=error_d[index], ecolor="black", alpha=0.6,
-                                      color='g', edgecolor="black", linewidth=0.1, capsize=6)
-            canvas.ax[index].bar(1, g2[index] - bottom[index], width=0.3, bottom=bottom[index],
-                                      yerr=error_p[index], ecolor="black", alpha=0.6, color='r',
-                                      edgecolor="black", linewidth=0.1, capsize=6, hatch='.')
-            if (g3[index] == 0) or (g3[index] == None) or (g3[index] == []):
-                pass
-            else:
+                                 bottom=bottom[index], yerr=error_d[index], ecolor="black", alpha=0.6, color='g',
+                                 edgecolor="black", linewidth=0.1, capsize=4, error_kw={'elinewidth': 1})
+            canvas.ax[index].bar(1, g2[index] - bottom[index], width=0.3, bottom=bottom[index], yerr=error_p[index],
+                                 ecolor="black", alpha=0.6, color='r', edgecolor="black", linewidth=0.1, capsize=4,
+                                 hatch='.', error_kw={'elinewidth': 1})
+            if (g3[index] != 0) or (g3[index] is not None) or (g3[index] != []):
                 canvas.ax[index].bar(1 + width, g3[index] - bottom[index], width=0.3,
-                                          bottom=bottom[index], yerr=error_n[index], ecolor="black", alpha=0.6,
-                                          color='b', edgecolor="black", linewidth=0.1, capsize=6, hatch='/')
-            canvas.ax[index].set_title(fontsize=16, label=cat_par[index])
+                                     bottom=bottom[index], yerr=error_n[index], ecolor="black", alpha=0.6, color='b',
+                                     edgecolor="black", linewidth=0.1, capsize=4, hatch='/', error_kw={'elinewidth': 1})
+            canvas.ax[index].set_title(label=cat_par[index], fontsize=9)
+        self.vbl = QtWidgets.QVBoxLayout()
+        self.vbl.addWidget(canvas)
+        self.toolbar = NavigationToolbar(canvas, self)
+        self.vbl.addWidget(self.toolbar)
+        self.setLayout(self.vbl)
+        plt.tight_layout()
+        plt.legend(labels=['Зд. доноры', "Пациенты с секр. ММ", "Пациенты с не секр. ММ"], loc='lower center',
+                   ncol=3, bbox_transform=plt.gcf().transFigure, bbox_to_anchor=(0.03, -0.00, 1, 2), framealpha=1)
+        # r = random.randint(1, 30)
+        # canvas.fig.savefig(f'fig_en_{r}.tiff')
+        # canvas.fig.savefig(f'fig_en_{r}.eps')

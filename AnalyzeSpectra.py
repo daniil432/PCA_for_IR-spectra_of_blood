@@ -3,6 +3,8 @@ import os
 import glob
 import numpy as np
 import pandas as pd
+import seaborn as sns
+from matplotlib import pyplot as plt
 
 
 class SpectraReader(object):
@@ -58,6 +60,7 @@ class AverageAnal(object):
                 maxmin.append(False)
             else:
                 maxmin.append(True)
+        # print(maxmin)
 
         for name in self.filenames:
             temp_r = []
@@ -72,11 +75,16 @@ class AverageAnal(object):
             prepared.append(temp_r)
             waves.append(temp_w)
 
+        order = [1, 4, 3, 6, 5, 7, 2]
         for sample in range(len(prepared)):
             temp = []
             for i in range(len(prepared[sample])):
                 for j in range(i + 1, len(prepared[sample])):
-                    temp.append(prepared[sample][i]/prepared[sample][j])
+                    # tyt
+                    if order[i] < order[j]:
+                        temp.append(prepared[sample][i]/prepared[sample][j])
+                    else:
+                        temp.append(prepared[sample][j] / prepared[sample][i])
             ratios.append(temp)
         return ratios, waves
 
@@ -119,8 +127,70 @@ class AverageAnal(object):
 
 
 class PcaAnal(object):
-    def __init__(self, matrix):
-        self.matrix = matrix.drop(matrix.columns[0], axis=1).T
+    def __init__(self, matrix, drop_first=True):
+        self.matrix_orig = matrix
+        if drop_first is True:
+            self.matrix = matrix.drop(matrix.columns[0], axis=1).T
+        else:
+            self.matrix = matrix
+
+    def graph_single(self, save):
+        fig = plt.figure(dpi=600)
+        plt.gca().invert_xaxis()
+        data = [self.matrix_orig.loc[:, self.matrix_orig.columns[0]],
+                self.matrix_orig.loc[:, self.matrix_orig.columns[8]]]
+        plt.plot(data[0], data[1], linewidth=2, color='black', linestyle='solid')
+        plt.xlabel('Wavenumber, cm$^{-1}$', fontsize=11)
+        plt.ylabel('Absorbance', fontsize=11)
+        plt.text(1615, 0.8, 'Amide-I\nStretching vibrations C=O')
+        plt.text(1600, 0.45, 'Amide-II bending\nvibrations N-H\nSide chains vibrations')
+        plt.text(1525, 0.2, 'Tyr')
+        plt.text(1440, 0.49, "Amide-II' bending\nvibrations N-D")
+        fig.show()
+        if save is True:
+            fig.savefig(f'fig_1_en.tiff')
+            fig.savefig(f'fig_1_en.eps')
+
+    def graph_many(self, save):
+        fig = plt.figure(dpi=600)
+        # print(self.matrix.columns)
+        # M17, N47
+        i1 = 29
+        i2 = 50
+        plt.gca().invert_xaxis()
+        data = [self.matrix.loc[:, self.matrix.columns[0]], self.matrix.loc[:, self.matrix.columns[4]],
+                self.matrix.loc[:, self.matrix.columns[i1]], self.matrix.loc[:, self.matrix.columns[i2]]]
+        plt.plot(data[0], data[1], linewidth=2, color='green', linestyle='solid')
+        plt.plot(data[0], data[2], linewidth=2, color='red', linestyle='dashed')
+        plt.plot(data[0], data[3], linewidth=2, color='blue', linestyle='-.')
+        plt.legend(['Healthy donors', 'Secretory MM patients', 'Non secretory MM patients'], fancybox=True, framealpha=1, shadow=True)
+        plt.xlabel('Wavenumber, cm$^{-1}$', fontsize=11)
+        plt.ylabel('Absorbance', fontsize=11)
+        plt.text(1630, 1.17, 'M$_{I}$')
+        plt.text(1440, 0.63, 'M$_{II}$')
+        plt.text(1570, 0.38, 'M$_{S}$')
+        plt.text(1520, 0.18, 'M$_{T}$')
+        plt.text(1600, 0.15, 'N$_{1}$')
+        plt.text(1530, 0.03, 'N$_{2}$')
+        plt.text(1510, 0.02, 'N$_{3}$')
+        fig.show()
+        if save is True:
+            fig.savefig(f'fig_2_en.tiff')
+            fig.savefig(f'fig_2_en.eps')
+
+    def eigen_graph(self, save=False, name=''):
+        eigenvalues = self.eigenvalues
+        eigenvalues = np.insert(eigenvalues, 0, np.sum(eigenvalues))
+        x = [i for i in range(len(eigenvalues))]
+        y = eigenvalues
+        plt.plot(x, y, color='black', linestyle='solid', linewidth=2, marker='o', markerfacecolor='red', markersize=8)
+        plt.xlabel('Номер собственного значения')
+        plt.ylabel('Собственное значение')
+        plt.title('График собственных значений')
+        plt.show()
+        if save is True:
+            plt.savefig(f'eigenplot_{name}.png')
+        plt.close()
 
     def normalize(self):
         self.matrix = (self.matrix - self.matrix.mean()) / self.matrix.std()
@@ -139,13 +209,13 @@ class PcaAnal(object):
 
         # какие-то числа совпадают, смотрим, где чисел меньше
         if len(eigenval_c) > len(eigenval_b):
-            eigenvalues = eigenval_b
+            self.eigenvalues = eigenval_b
         else:
-            eigenvalues = eigenval_c
+            self.eigenvalues = eigenval_c
 
         # на диагональ матрицы S ставим собственные числа
-        for index in range(len(eigenvalues)):
-            s_matrix[index][index] = (abs(eigenvalues[index])) ** (1 / 2)
+        for index in range(len(self.eigenvalues)):
+            s_matrix[index][index] = (abs(self.eigenvalues[index])) ** (1 / 2)
 
         # находим матрицы T и P
         t_matrix = eigenvec_c @ s_matrix
@@ -155,6 +225,19 @@ class PcaAnal(object):
         # t_matrix = pca.fit_transform(self.matrix)
         # p_matrix = pca.components_.T
         return t_matrix, p_matrix
+
+    def heatmap_pca(self, matrix, slice=-1, save=False, name=''):
+        sns.heatmap(matrix[:, :slice])
+        plt.show()
+        if save is True:
+            plt.savefig(f'heatmap_{name}.png')
+        plt.close()
+        table = pd.DataFrame(matrix[:, :slice])
+        sns.pairplot(table)
+        plt.show()
+        if save is True:
+            plt.savefig(f'pairplot_{name}.png')
+        plt.close()
 
 
 def derivative_df(matrix):
@@ -209,16 +292,24 @@ def mean_error(vector):
 if __name__ == "__main__":
     s = SpectraReader()
     filenames = s.read_spectra('C:\\PCA_with_R\\input_dpt')
-    matrix_for_average = s.cut_spectra('y', '1600-1650, 1580-1600, 1550-1580, 1520-1550, 1500-1525, 1500-1510, 1440-1470')
-    matrix_for_pca = s.cut_spectra('n', '1700-1600')
+    matrix_for_average = s.cut_spectra('y', '1600-1700, 1580-1620, 1550-1590, 1520-1550, '
+                                            '1500-1525, 1497-1512, 1420-1480')
+    matrix_for_pca = s.cut_spectra('n', '1700-1350')
 
     a = AverageAnal(filenames)
     ratio, waves = a.get_waves_ratios(matrix_for_average)
     ratio_waves = a.calc_average(ratio, waves)
-    ratio_waves = a.normalize_average(ratio_waves)
+    ratio_waves, ratio_norm = a.normalize_average(ratio_waves, ratio)
+    ratio_norm = pd.DataFrame(ratio_norm)
 
     p = PcaAnal(matrix_for_pca)
     p.normalize()
-    p.performPCA()
+    p.graph_single(save=False)
+    t_matrix, p_matrix = p.performPCA()
+    #p.heatmap_pca(t_matrix, 10, save=False, name='orig')
 
-    d = derivative_df(matrix_for_pca)
+    pr = PcaAnal(ratio_norm, drop_first=False)
+    tr_matrix, pr_matrix = pr.performPCA()
+    pr.heatmap_pca(tr_matrix, 10, save=False, name='ratio_pca')
+
+    #d = derivative_df(matrix_for_pca)

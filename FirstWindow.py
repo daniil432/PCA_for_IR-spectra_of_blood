@@ -8,7 +8,7 @@ import sys
 
 class FirstWin(QMainWindow):
     def __init__(self):
-        super().__init__()
+        super(FirstWin, self).__init__()
         loadUi("C:\\PCA_with_R\\interface\\FirstWindow.ui", self)
         self.button_dpt.clicked.connect(self.openDpt)
         self.button_csv.setEnabled(False)
@@ -18,8 +18,9 @@ class FirstWin(QMainWindow):
         self.show()
 
     def openDpt(self):
-        ui_SecWin = SecWin()
-        ui_SecWin.exec()
+        ui_SecWin = SecWin(self)
+        ui_SecWin.show()
+        self.hide()
 
     def browseFiles(self):
         fname = QFileDialog.getExistingDirectory(self, 'Open File', 'C:\PCA_with_R')
