@@ -1,5 +1,4 @@
 import os.path
-import PyQt5
 import pandas as pd
 import ColumnWindow
 import AverageWindow
@@ -28,7 +27,7 @@ class SecWin(QMainWindow):
         self.waves = None
         self.filenames = None
         self.t_matrix_d1 = None
-        loadUi("C:\\PCA_with_R\\interface\\SecondWindow.ui", self)
+        loadUi("interface\\SecondWindow.ui", self)
         self.Accept_Button.setEnabled(True)
         self.Diapason_choose.setEnabled(True)
         self.pathText.setEnabled(True)
@@ -60,7 +59,7 @@ class SecWin(QMainWindow):
         self.Diapason_choose.setPlaceholderText("1700-1600")
 
     def browseFiles(self):
-        filename = QFileDialog.getExistingDirectory(self, 'Open File', 'C:\PCA_with_R')
+        filename = QFileDialog.getExistingDirectory(self, 'Open File', '.')
         self.pathText.setText(filename)
 
     def acceptParams(self):
@@ -72,11 +71,11 @@ class SecWin(QMainWindow):
         if self.pathText.toPlainText() != '':
             path_dpt = self.pathText.toPlainText()
         else:
-            path_dpt = 'C:\PCA_with_R\input_dpt'
+            path_dpt = 'input_dpt'
         if self.checkBox.isChecked():
-            normalization = 'y'
+            normalization = True
         else:
-            normalization = 'n'
+            normalization = False
         pc_num = self.pc_num.value()
 
         self.Accept_Button.setEnabled(False)
@@ -93,9 +92,9 @@ class SecWin(QMainWindow):
         # Считываем спектры и создаём матрицы для обработки
         research = AnalyzeSpectra.SpectraReader()
         self.filenames = research.read_spectra(path_dpt=path_dpt)
-        matrix_w_r = research.cut_spectra(separate_df='y', input_range='1600-1700, 1580-1620, 1550-1590, 1520-1550,'
+        matrix_w_r = research.cut_spectra(separate_df=True, input_range='1600-1700, 1580-1620, 1550-1590, 1520-1550,'
                                           '1500-1525, 1497-1512, 1420-1480')
-        matrix_pca = research.cut_spectra(separate_df='n', input_range=input_range)
+        matrix_pca = research.cut_spectra(separate_df=False, input_range=input_range)
         deriv1 = AnalyzeSpectra.derivative_df(matrix_pca)
         deriv2 = AnalyzeSpectra.derivative_df(deriv1)
 

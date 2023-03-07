@@ -1,5 +1,4 @@
 import math
-
 import numpy as np
 from PyQt5 import QtWidgets
 from PyQt5.uic import loadUi
@@ -14,7 +13,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 class PatWin(QDialog):
     def __init__(self, parent, ratio, waves, ratio_waves, filenames):
         super(PatWin, self).__init__(parent)
-        loadUi("C:\\PCA_with_R\\interface\\PatientWindow.ui", self)
+        loadUi("interface\\PatientWindow.ui", self)
         self.parent = parent
         self.ratio = ratio
         self.waves = waves

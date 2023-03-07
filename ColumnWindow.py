@@ -1,4 +1,4 @@
-import numpy as np
+import os
 from PyQt5.QtWidgets import *
 from PyQt5 import QtWidgets
 from PyQt5.uic import loadUi
@@ -10,7 +10,8 @@ from matplotlib.figure import Figure
 class ColWin(QMainWindow):
     def __init__(self, parent, signal, filenames, t_pca, p_pca, t_der1, p_der1, t_der2, p_der2, tr_pca, pr_pca, waves,):
         super(ColWin, self).__init__(parent)
-        loadUi("C:\\PCA_with_R\\interface\\ColumnWindow.ui", self)
+        print(os.path.abspath(os.curdir))
+        loadUi("interface\\ColumnWindow.ui", self)
         self.parent = parent
         self.t_matrix = None
         self.p_matrix = None
@@ -43,10 +44,7 @@ class ColWin(QMainWindow):
 
     def showGraphColumn(self):
         self.Columns = []
-        Columns_temp = self.Columns_int.text()
-        Columns_temp = Columns_temp.replace(' ', '')
-        Columns_temp = Columns_temp.replace('.', ',')
-        Columns_temp = Columns_temp.split(',')
+        Columns_temp = self.Columns_int.text().replace(' ', '').replace('.', ',').split(',')
         for j in Columns_temp:
             self.Columns.append(int(j))
         self.radioButtonChecking()
@@ -79,38 +77,57 @@ class ColWin(QMainWindow):
             self.p_matrix = self.pr_pca
             self.waves_for_graph = self.p_matrix[:, self.Columns[1]-1]
 
+    def prepare_data(self, *args):
+        samples = {
+            "D": [],
+            "M": [],
+            "N": [],
+            "O": [],
+        }
+        for item in range(len(args)):
+            for key in samples:
+                samples[key].append([])
+
+        for index in range(len(self.filenames)):
+            for axis in range(len(args)):
+                if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
+                    samples['M'][axis].append(args[axis][index])
+                elif self.filenames[index][0] == 'N':
+                    samples['N'][axis].append(args[axis][index])
+                elif self.filenames[index][0] == 'D':
+                    samples['D'][axis].append(args[axis][index])
+                elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
+                    samples['O'][axis].append(args[axis][index])
+        return samples
+
     def plotScores(self):
         self.colGraph.canvas.ax.clear()
-        first_column = self.Columns[0]
-        second_column = self.Columns[1]
-        first_column -= 1
-        second_column -= 1
-        x = self.t_matrix[:, first_column]
-        y = self.t_matrix[:, second_column]
-        for index in range(len(self.filenames)):
-            if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
-                self.colGraph.canvas.ax.scatter(x[index], y[index], color="red", marker="o", s=50)
-                # self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
-            elif self.filenames[index][0] == 'N':
-                self.colGraph.canvas.ax.scatter(x[index], y[index], color="blue", marker="P", s=50)
-                # self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
-            elif self.filenames[index][0] == 'D':
-                self.colGraph.canvas.ax.scatter(x[index], y[index], color="green", marker="*", s=50)
-                # self.colGraph.canvas.ax.annotate(self.filenames[index], (self.x[index], self.y[index]))
-            elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
-                self.colGraph.canvas.ax.scatter(x[index], y[index], color="black", marker="*", s=50)
-                # plt.annotate(filenames[index], (x[index], y[index]))
+        x = self.t_matrix[:, self.Columns[0] - 1]
+        y = self.t_matrix[:, self.Columns[1] - 1]
+
+        samples = self.prepare_data(x, y, self.filenames)
+        colors = {'M': 'red', 'N': 'blue', 'D': 'green', 'O': 'black'}
+        markers = {'M': 'o', 'N': '^', 'D': '*', 'O': 's'}
+        for key, value in samples.items():
+            for index in range(len(self.filenames)):
+                self.colGraph.canvas.ax.scatter(value[0], value[1],
+                                                color=colors[key], marker=markers[key], alpha=1, zorder=10)
+            for item in range(len(value[0])):
+                self.colGraph.canvas.ax.annotate(value[-1][item], (value[0][item], value[1][item]))
         self.colGraph.canvas.draw()
 
     def plotLoadings(self):
-        first_column = self.Columns[0]
-        second_column = self.waves_for_graph
-        first_column -= 1
+        xs = self.waves_for_graph
+        ys = list(self.p_matrix[:, self.Columns[0] - 1])
 
-        xs = second_column
-        ys = list(self.p_matrix[:, first_column])
         self.colGraph.canvas.ax.clear()
         self.colGraph.canvas.ax.scatter(xs, ys, color="black", marker="o", s=12)
+
+        wave = [1690, 1684, 1682.5, 1672, 1664, 1652.5, 1647, 1631, 1629.5]
+        struct = ['Beta-turns', 'Beta-turns', 'Beta-sheets', 'Beta-turns', 'Beta-turns', 'Alpha-helices',
+                  'Random-coil', 'Beta-sheets', 'Beta-sheets', ]
+        color = ['green', 'green', 'blue', 'green', 'green', 'red', 'orange', 'blue', 'blue']
+        width = [1, 1, 12.5, 1, 1, 3, 5, 2, 1, 11.5]
         if self.RatioWave_button.isChecked():
             labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$',
                       "M$_{I}$/M$_{II}$",
@@ -121,39 +138,27 @@ class ColWin(QMainWindow):
                       "M$_{II}$/N$_{3}$", 'M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II}$"]
             for i, txt in enumerate(labels):
                 self.colGraph.canvas.ax.annotate(txt, (xs[i], ys[i]))
-        if max(second_column) >= 1652.5 and min(second_column) <= 1629.5:
-            self.colGraph.canvas.ax.axvline(x=1690, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1684, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1682.5, color='blue', label='Beta-sheets', linewidth=12.5, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1672, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1664, color='green', label='Beta-turns', linewidth=1, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1652.5, color='red', label='Alpha-helices', linewidth=3.5, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1647, color='orange', label='Random-coil', linewidth=2, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1631, color='blue', label='Beta-sheets', linewidth=1, alpha=0.5)
-            self.colGraph.canvas.ax.axvline(x=1629.5, color='blue', label='Beta-sheets', linewidth=11.5, alpha=0.5)
-        self.colGraph.canvas.ax.invert_xaxis()
+
+        if max(xs) >= 1652.5 and min(xs) <= 1629.5:
+            for ind in range(len(wave)):
+                self.colGraph.canvas.ax.axvline(x=wave[ind], color=color[ind], label=struct[ind],
+                                                linewidth=width[ind], alpha=0.5)
+            self.colGraph.canvas.ax.invert_xaxis()
         self.colGraph.canvas.draw()
 
     def plot3D(self):
         self.colGraph.canvas.ax.clear()
-        first_column = self.Columns[0]
-        second_column = self.Columns[1]
-        third_column = self.Columns[2]
-        first_column -= 1
-        second_column -= 1
-        third_column -= 1
-        x = self.t_matrix[:, first_column]
-        y = self.t_matrix[:, second_column]
-        z = self.t_matrix[:, third_column]
-        for index in range(len(self.filenames)):
-            if (self.filenames[index][0] == 'P') or (self.filenames[index][0] == 'M'):
-                self.colGraph.canvas.ax.scatter(x[index], y[index], self.z[index], color="red")
-            elif self.filenames[index][0] == 'N':
-                self.colGraph.canvas.ax.scatter(x[index], y[index], z[index], color="blue")
-            elif self.filenames[index][0] == 'D':
-                self.colGraph.canvas.ax.scatter(x[index], y[index], self.z[index], color="green")
-            elif (self.filenames[index][0] == 'O') or (self.filenames[index][0] == 'B'):
-                self.colGraph.canvas.ax.scatter(x[index], y[index], self.z[index], color="black")
+        x = self.t_matrix[:, self.Columns[0] - 1]
+        y = self.t_matrix[:, self.Columns[1] - 1]
+        z = self.t_matrix[:, self.Columns[2] - 1]
+        samples = self.prepare_data(x, y, z, self.filenames)
+        colors = {'M': 'red', 'N': 'blue', 'D': 'green', 'O': 'black'}
+        markers = {'M': 'o', 'N': '^', 'D': '*', 'O': 's'}
+        for key, value in samples.items():
+            self.colGraph.canvas.ax.scatter(samples[key][0], samples[key][1], samples[key][2],
+                                            color=colors[key], marker=markers[key], alpha=1)
+            for item in range(len(value[0])):
+                self.colGraph.canvas.ax.annotate(value[-1][item], (value[0][item], value[1][item]))
         self.colGraph.canvas.draw()
 
 

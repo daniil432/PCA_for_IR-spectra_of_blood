@@ -1,8 +1,6 @@
 import copy
 import math
-import random
 from PyQt5.QtWidgets import *
-from PyQt5 import QtWidgets
 from PyQt5.uic import loadUi
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -11,23 +9,61 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 from math import acos, sqrt
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class AverWin(QMainWindow):
     def __init__(self, parent, ratio_waves):
         super(AverWin, self).__init__(parent)
-        loadUi("C:\\PCA_with_R\\interface\\AverageWindow.ui", self)
+        loadUi("interface\\AverageWindow.ui", self)
+        _translate = QtCore.QCoreApplication.translate
         self.parent = parent
-        self.tab_mm.RatioWidget = RatioWidgetAverage(ratio_waves, 1, self.RatioWidget)
-        self.tab_non_mm.RatioWidget = RatioWidgetAverage(ratio_waves, 2, self.RatioWidget_2)
+        for key in list(ratio_waves.keys()):
+            if key != 'D':
+                setattr(self, f"tab_{key}", self.newTab(key))
+                self.tabWidget.addTab(getattr(self, f"tab_{key}"), f"tab_{key}")
+                self.label_2.setText(_translate("MainWindow",
+                                                "<html><head/><body><p align=\"center\">"
+                                                "Средние значения отношений поглощения для здоровых доноров и "
+                                                "иной рассматриваемой группы образцов. Зелёным цветом "
+                                                "обозначены доноры, другим цветом - выбранная группа."
+                                                "</p></body></html>"))
+                self.tabWidget.setTabText(self.tabWidget.indexOf(getattr(self, f"tab_{key}")),
+                                          _translate("MainWindow", f"Ratio_{key}"))
+                getattr(self, f"tab_{key}").RatioWidget = RatioWidgetAverage(
+                    {'D': copy.deepcopy(ratio_waves['D']), key: copy.deepcopy(ratio_waves[key])}, key, self.RatioWidget)
         self.tab_wave.WaveWidget = WaveWidgetAverage(ratio_waves, self.WaveWidget)
         self.CloseButton.clicked.connect(self.closeEvent)
         QAction("Quit", self).triggered.connect(self.closeEvent)
 
-
-def closeEvent(self, event):
+    def closeEvent(self, event):
         self.parent.show()
         self.close()
+
+    def newTab(self, name):
+        setattr(self, f"tab_{name}", QtWidgets.QWidget())
+        getattr(self, f"tab_{name}").setObjectName(f"tab_{name}")
+        self.label_3 = QtWidgets.QLabel(getattr(self, f"tab_{name}"))
+        self.label_3.setGeometry(QtCore.QRect(160, 10, 1400, 90))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(16)
+        self.label_3.setFont(font)
+        self.label_3.setWordWrap(True)
+        self.label_3.setObjectName("label_3")
+        self.RatioWidget = QtWidgets.QWidget(getattr(self, f"tab_{name}"))
+        self.RatioWidget.setGeometry(QtCore.QRect(40, 100, 1661, 771))
+        self.RatioWidget.setObjectName("RatioWidget")
+        self.label_2 = QtWidgets.QLabel(getattr(self, f"tab_{name}"))
+        self.label_2.setGeometry(QtCore.QRect(150, 0, 1400, 90))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(16)
+        self.label_2.setFont(font)
+        self.label_2.setWordWrap(True)
+        self.label_2.setObjectName("label_2")
+        return getattr(self, f"tab_{name}")
+
 
 
 class MplCanvasAverage(Canvas):
@@ -49,87 +85,47 @@ class MplCanvasAverage(Canvas):
 
 
 class RatioWidgetAverage(QtWidgets.QWidget):
-    def __init__(self, ratio_waves, mode, parent=None):
+    def __init__(self, ratio_waves, key_graph, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
 
-        error_radial_d = np.append(ratio_waves['D'][2], ratio_waves['D'][2][0])
-        if 'M' in ratio_waves.keys():
-            if ratio_waves['M'][2] is not None:
-                error_radial_p = np.append(ratio_waves['M'][2], ratio_waves['M'][2][0])
-            else:
-                error_radial_p = [None] * len(error_radial_d)
-        else:
-            error_radial_p = [None] * len(error_radial_d)
-        if 'N' in ratio_waves.keys():
-            if ratio_waves['N'][2] is not None:
-                error_radial_n = np.append(ratio_waves['N'][2], ratio_waves['N'][2][0])
-            else:
-                error_radial_n = [None] * len(error_radial_d)
-        else:
-            error_radial_n = [None] * len(error_radial_d)
-
-        result_d = np.append(ratio_waves['D'][0], ratio_waves['D'][0][0])
-        if 'M' in ratio_waves.keys():
-            if ratio_waves['M'][0] is not None:
-                result_p = np.append(ratio_waves['M'][0], ratio_waves['M'][0][0])
-            else:
-                result_p = [None] * len(result_d)
-        else:
-            result_p = [None] * len(result_d)
-        if 'N' in ratio_waves.keys():
-            if ratio_waves['N'][0] is not None:
-                result_n = np.append(ratio_waves['N'][0], ratio_waves['N'][0][0])
-            else:
-                result_n = [None] * len(result_d)
-        else:
-            result_n = [None] * len(result_d)
-
-        canvas = MplCanvasAverage('polar', len(result_d)-1)
-        labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$', "M$_{I}$/M$_{II}$",
+        # Длина первого подсписка под первым ключом словаре
+        list_of_keys = list(ratio_waves.keys())
+        canv_size = len(ratio_waves[list_of_keys[0]][0])
+        canvas = MplCanvasAverage('polar', canv_size)
+        labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$',
+                  "M$_{I}$/M$_{II}$",
                   'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "M$_{II}$/N$_{1}$",
                   'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{II}$/M$_{S}$",
                   'M$_{T}$/N$_{2}$', 'N$_{2}$/N$_{3}$', "M$_{II}$/N$_{2}$",
                   'M$_{T}$/N$_{3}$', "M$_{II}$/M$_{T}$",
                   "M$_{II}$/N$_{3}$"]
 
-        # drop_ = [20, 19, 18, 17, 16, 15, 9, 6, 5, 4, 3, 2] # Временно убираем элементы из обзора для статьи...
-        # for ind in range(len(drop_)): # Временно
-        #     labels.pop(drop_[ind]) # Временно
-        #     result_d = np.delete(result_d, drop_[ind]) # Временно
-        #     result_p = np.delete(result_p, drop_[ind]) # Временно
-        #     result_n = np.delete(result_n, drop_[ind]) # Временно
-        #     error_radial_d = np.delete(error_radial_d, drop_[ind]) # Временно
-        #     error_radial_p = np.delete(error_radial_p, drop_[ind]) # Временно
-        #     error_radial_n = np.delete(error_radial_n, drop_[ind]) # Временно
-        theta = np.linspace(start=0, stop=2 * np.pi, num=len(result_d) - 1, endpoint=False)
+        theta = np.linspace(start=0, stop=2 * np.pi, num=canv_size, endpoint=False)
         theta = np.concatenate((theta, [theta[0]]))
-        canvas.ax.plot(theta, result_d, linewidth=2, linestyle='-', color="green")
-        canvas.ax.bar(theta, result_d, linewidth=0, yerr=error_radial_d, capsize=0.00008, color="green",
-                      fill=None, ecolor="green", alpha=0.8)
-        if mode == 1:
-            if None in result_p:
-                pass
-            else:
-                canvas.ax.plot(theta, result_p, linewidth=2, linestyle='--', color="red")
-                canvas.ax.bar(theta, result_p, linewidth=0, yerr=error_radial_p, capsize=0.00008, color="red",
-                              fill=None, ecolor="red", alpha=0.8)
-        else:
-            if None in result_n:
-                pass
-            else:
-                canvas.ax.plot(theta, result_n, linewidth=2, linestyle='--', color="blue")
-                canvas.ax.bar(theta, result_n, linewidth=0, yerr=error_radial_n, capsize=0.00008, color="blue",
-                              fill=None, ecolor="blue", alpha=0.8)
+
+        linestyles = {'D': '-', 'M': '--', 'N': '-.', 'O': ':', 'B': 'solid', 'U': 'dashed', }
+        colors = {'D': "green", 'M': "red", 'N': "blue", 'O': "black", 'B': "orange", 'U': "purple", }
+        ledend_labels = {'D': "Здоровые доноры", 'M': "Пациенты с секр. ММ", 'N': "Пациенты с не секр. ММ",
+                         'O': "Тестовые доноры", 'B': "Тестовые доноры", 'U': "Неизвестные образцы", }
+
+        for key in ratio_waves.keys():
+            ratio_waves[key][0].append(ratio_waves[key][0][0])
+            ratio_waves[key][2].append(ratio_waves[key][2][0])
+            canvas.ax.plot(theta, ratio_waves[key][0], linewidth=2, linestyle=linestyles[key], color=colors[key])
+            canvas.ax.bar(theta, ratio_waves[key][0], linewidth=0, yerr=ratio_waves[key][2], capsize=0.00008,
+                          color=colors[key], fill=None, ecolor=colors[key], alpha=0.8)
+
         _ran = [*range(0, 360, math.floor(360 / len(labels)))]
         if len(_ran) > len(labels):
             _ran.pop(-1)
         canvas.ax.set_thetagrids(_ran, labels, fontsize=10)
         plt.yticks(np.arange(0, 1.5, 0.2), fontsize=10)
-        legend_label = {1: "Пациенты с секр. ММ", 2: "Пациенты с не секр. ММ"}
-        canvas.ax.legend([Line2D([0], [0], linestyle='-', color='g', lw=3),
-                          Line2D([0], [0], linestyle='--', color=['r' if mode == 1 else 'b'][0], lw=3)],
-                         ['Здоровые доноры', legend_label[mode]], prop={'size': 12},
+
+        canvas.ax.legend([Line2D([0], [0], linestyle=linestyles['D'], color=colors['D'], lw=3),
+                          Line2D([0], [0], linestyle=linestyles[key_graph], color=colors[key_graph], lw=3)],
+                         [ledend_labels['D'], ledend_labels[key_graph]], prop={'size': 12},
                          loc='upper center', bbox_to_anchor=(0.005, 1.165), fancybox=True, shadow=True)
+
         canvas.ax.set(facecolor='#f3f3f3')
         canvas.ax.set_theta_offset(np.pi / 2)
         canvas.ax.set_theta_direction(-1)
@@ -137,7 +133,7 @@ class RatioWidgetAverage(QtWidgets.QWidget):
         for line in pl:
             line.get_path()._interpolation_steps = 5
 
-        def correct_errorbar(ax, barlen=0.05, errorline=1, color='black', mode=1):
+        def correct_errorbar(ax, barlen=0.05, errorline=1, color='black'):
             x, y = ax.lines[errorline].get_data()
             del ax.lines[errorline]
             for i in range(len(y)):
@@ -147,10 +143,10 @@ class RatioWidgetAverage(QtWidgets.QWidget):
                 ax.add_line(newline)
 
         _indexes = [5, 4, 2, 1]
-        _color = {1: ['red', 'red', 'green', 'green'], 2: ['blue', 'blue', 'green', 'green']}
+        _colors = [colors[key_graph], colors[key_graph], colors['D'], colors['D'], ]
         try:
             for i in range(len(_indexes)):
-                correct_errorbar(canvas.ax, barlen=0.1, errorline=_indexes[i], color=_color[mode][i], mode=mode)
+                correct_errorbar(canvas.ax, barlen=0.1, errorline=_indexes[i], color=_colors[i])
         except:
             pass
         self.vbl = QtWidgets.QVBoxLayout()
@@ -158,73 +154,37 @@ class RatioWidgetAverage(QtWidgets.QWidget):
         self.toolbar = NavigationToolbar(canvas, self)
         self.vbl.addWidget(self.toolbar)
         self.setLayout(self.vbl)
-        # r = random.randint(1, 30)
-        # canvas.fig.savefig(f'fig_en_{r}.tiff')
-        # canvas.fig.savefig(f'fig_en_{r}.eps')
 
 
 class WaveWidgetAverage(QtWidgets.QWidget):
     def __init__(self, ratio_waves, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
 
-        g1 = ratio_waves['D'][1]
-        if 'M' in ratio_waves.keys():
-            g2 = ratio_waves['M'][1]
-        else:
-            g2 = [None] * len(g1)
-        if 'N' in ratio_waves.keys():
-            g3 = ratio_waves['N'][1]
-        else:
-            g3 = [None] * len(g1)
-
-        error_d = np.array(ratio_waves['D'][3]).T
-        if 'M' in ratio_waves.keys():
-            error_p = np.array(ratio_waves['M'][3]).T
-        else:
-            error_p = [None] * len(g1)
-        if 'N' in ratio_waves.keys():
-            error_n = np.array(ratio_waves['N'][3]).T
-        else:
-            error_n = [None] * len(g1)
-
+        key_len = len(ratio_waves['D'][1])
+        canvas = MplCanvasAverage('errorbar', key_len)
+        pos = [1/key_len + 1/key_len * 2*k for k in range(0, key_len)]
         cat_par = ['M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II}$"]
-        # drop_ = [6] # Временно убираем элементы из обзора для статьи
-        # for ind in range(len(drop_)): # Временно
-        #     cat_par.pop(drop_[ind]) # Временно
-        #     g1 = np.delete(g1, drop_[ind]) # Временно
-        #     g2 = np.delete(g2, drop_[ind]) # Временно
-        #     g3 = np.delete(g3, drop_[ind]) # Временно
-        canvas = MplCanvasAverage('errorbar', len(g1))
-        width = 0.3
+        hatches = {'D': None, 'M': '.', 'N': '/', 'O': '\\', 'B': 'o', 'U': '*', }
+        colors = {'D': "green", 'M': "red", 'N': "blue", 'O': "black", 'B': "orange", 'U': "purple", }
+        ledend_labels = {'D': "Здоровые доноры", 'M': "Пациенты с секр. ММ", 'N': "Пациенты с не секр. ММ",
+                         'O': "Тестовые доноры", 'B': "Тестовые доноры", 'U': "Неизвестные образцы", }
+
         bottom = []
-        for wave in range(len(g1)):
-            if None not in g2 and None not in g3:
-                min_wave = copy.copy(min(g1[wave], g2[wave], g3[wave]))
-            elif None not in g2 and None in g3:
-                min_wave = copy.copy(min(g1[wave], g2[wave]))
-            elif None not in g3 and None in g2:
-                min_wave = copy.copy(min(g1[wave], g3[wave]))
-            bottom.append(min_wave - 1.5)
-        for index in range(len(g1)):
-            canvas.ax[index].bar(1 - width, g1[index] - bottom[index], width=0.3,
-                                 bottom=bottom[index], yerr=error_d[index], ecolor="black", alpha=0.6, color='g',
-                                 edgecolor="black", linewidth=0.1, capsize=4, error_kw={'elinewidth': 1})
-            canvas.ax[index].bar(1, g2[index] - bottom[index], width=0.3, bottom=bottom[index], yerr=error_p[index],
-                                 ecolor="black", alpha=0.6, color='r', edgecolor="black", linewidth=0.1, capsize=4,
-                                 hatch='.', error_kw={'elinewidth': 1})
-            if (g3[index] != 0) or (g3[index] is not None) or (g3[index] != []):
-                canvas.ax[index].bar(1 + width, g3[index] - bottom[index], width=0.3,
-                                     bottom=bottom[index], yerr=error_n[index], ecolor="black", alpha=0.6, color='b',
-                                     edgecolor="black", linewidth=0.1, capsize=4, hatch='/', error_kw={'elinewidth': 1})
-            canvas.ax[index].set_title(label=cat_par[index], fontsize=9)
+        for index in range(key_len):
+            bottom.append(min([ratio_waves[k][1][index] for k in list(ratio_waves.keys())])-1.5)
+
+        for index in range(len(ratio_waves['D'][1])):
+            for key, value in ratio_waves.items():
+                canvas.ax[index].bar(pos[list(ratio_waves.keys()).index(key)], value[1][index] - bottom[index],
+                                     bottom=bottom[index], width=0.3, yerr=value[3][index], ecolor="black", alpha=0.6,
+                                     color=colors[key], capsize=4, hatch=hatches[key], edgecolor="black", linewidth=0.1,
+                                     error_kw={'elinewidth': 1})
+
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(canvas)
         self.toolbar = NavigationToolbar(canvas, self)
         self.vbl.addWidget(self.toolbar)
         self.setLayout(self.vbl)
         plt.tight_layout()
-        plt.legend(labels=['Зд. доноры', "Пациенты с секр. ММ", "Пациенты с не секр. ММ"], loc='lower center',
-                   ncol=3, bbox_transform=plt.gcf().transFigure, bbox_to_anchor=(0.03, -0.00, 1, 2), framealpha=1)
-        # r = random.randint(1, 30)
-        # canvas.fig.savefig(f'fig_en_{r}.tiff')
-        # canvas.fig.savefig(f'fig_en_{r}.eps')
+        plt.legend(labels=[i for i in [ledend_labels[k] for k in list(ratio_waves.keys())]], loc='lower center',
+                   ncol=key_len, bbox_transform=plt.gcf().transFigure, bbox_to_anchor=(0.03, -0.00, 1, 2), framealpha=1)

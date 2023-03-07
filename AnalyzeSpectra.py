@@ -24,10 +24,11 @@ class SpectraReader(object):
             filename = re.match('[a-zA-Z-0-9]+', filename).group()
             self.spectra_matrix[filename] = input_df[1]
             filenames.append(filename if isinstance(filename, str) else filename[0])
+        os.chdir('../')
         return filenames
 
     def cut_spectra(self, separate_df, input_range='100000-0'):
-        if separate_df in ['y', 'Y']:
+        if separate_df is True:
             cutted_matrix = []
         else:
             cutted_matrix = pd.DataFrame(columns=self.spectra_matrix.columns)
@@ -36,7 +37,7 @@ class SpectraReader(object):
         for wave in input_range:
             temp = self.spectra_matrix.drop(self.spectra_matrix[self.spectra_matrix['waves'] < min(wave)].index)
             temp = temp.drop(temp[temp['waves'] > max(wave)].index)
-            if separate_df in ['y', 'Y']:
+            if separate_df is True:
                 cutted_matrix.append(temp.reset_index(drop=True))
             else:
                 cutted_matrix = pd.concat([cutted_matrix, temp]).reset_index(drop=True)
@@ -60,7 +61,6 @@ class AverageAnal(object):
                 maxmin.append(False)
             else:
                 maxmin.append(True)
-        # print(maxmin)
 
         for name in self.filenames:
             temp_r = []
@@ -80,7 +80,6 @@ class AverageAnal(object):
             temp = []
             for i in range(len(prepared[sample])):
                 for j in range(i + 1, len(prepared[sample])):
-                    # tyt
                     if order[i] < order[j]:
                         temp.append(prepared[sample][i]/prepared[sample][j])
                     else:
@@ -291,7 +290,7 @@ def mean_error(vector):
 
 if __name__ == "__main__":
     s = SpectraReader()
-    filenames = s.read_spectra('C:\\PCA_with_R\\input_dpt')
+    filenames = s.read_spectra('input_dpt')
     matrix_for_average = s.cut_spectra('y', '1600-1700, 1580-1620, 1550-1590, 1520-1550, '
                                             '1500-1525, 1497-1512, 1420-1480')
     matrix_for_pca = s.cut_spectra('n', '1700-1350')

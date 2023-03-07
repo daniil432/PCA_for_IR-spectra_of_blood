@@ -9,7 +9,7 @@ import sys
 class FirstWin(QMainWindow):
     def __init__(self):
         super(FirstWin, self).__init__()
-        loadUi("C:\\PCA_with_R\\interface\\FirstWindow.ui", self)
+        loadUi("interface\\FirstWindow.ui", self)
         self.button_dpt.clicked.connect(self.openDpt)
         self.button_csv.setEnabled(False)
         self.directory_csv.setEnabled(False)
@@ -23,7 +23,7 @@ class FirstWin(QMainWindow):
         self.hide()
 
     def browseFiles(self):
-        fname = QFileDialog.getExistingDirectory(self, 'Open File', 'C:\PCA_with_R')
+        fname = QFileDialog.getExistingDirectory(self, 'Open File', '.')
         self.path_csv = fname
 
     def aboutAss(self):
