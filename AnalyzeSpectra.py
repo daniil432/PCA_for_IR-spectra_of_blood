@@ -137,7 +137,7 @@ class PcaAnal(object):
         fig = plt.figure(dpi=600)
         plt.gca().invert_xaxis()
         data = [self.matrix_orig.loc[:, self.matrix_orig.columns[0]],
-                self.matrix_orig.loc[:, self.matrix_orig.columns[8]]]
+                self.matrix_orig.loc[:, self.matrix_orig.columns[7]]]
         plt.plot(data[0], data[1], linewidth=2, color='black', linestyle='solid')
         plt.xlabel('Wavenumber, cm$^{-1}$', fontsize=11)
         plt.ylabel('Absorbance', fontsize=11)
@@ -145,34 +145,42 @@ class PcaAnal(object):
         plt.text(1600, 0.45, 'Amide-II bending\nvibrations N-H\nSide chains vibrations')
         plt.text(1525, 0.2, 'Tyr')
         plt.text(1440, 0.49, "Amide-II' bending\nvibrations N-D")
-        fig.show()
+        #fig.show()
         if save is True:
             fig.savefig(f'fig_1_en.tiff')
             fig.savefig(f'fig_1_en.eps')
 
-    def graph_many(self, save):
+    def graph_many(self, save, filenames):
         fig = plt.figure(dpi=600)
-        # print(self.matrix.columns)
-        # M17, N47
-        i1 = 29
-        i2 = 50
+        # M17, N7
+        i1 = 39  # M17
+        # i1 = 33  # M3
+        # i1 = 33  # M3
+        i2 = 52  # N7
         plt.gca().invert_xaxis()
-        data = [self.matrix.loc[:, self.matrix.columns[0]], self.matrix.loc[:, self.matrix.columns[4]],
-                self.matrix.loc[:, self.matrix.columns[i1]], self.matrix.loc[:, self.matrix.columns[i2]]]
+        print(filenames)
+        print(filenames[1], filenames[5], filenames[i1-1], filenames[i2-1])
+        data = [self.matrix_orig.loc[:, self.matrix_orig.columns[0]], self.matrix_orig.loc[:, self.matrix_orig.columns[4]],
+                self.matrix_orig.loc[:, self.matrix_orig.columns[i1]], self.matrix_orig.loc[:, self.matrix_orig.columns[i2]]]
         plt.plot(data[0], data[1], linewidth=2, color='green', linestyle='solid')
         plt.plot(data[0], data[2], linewidth=2, color='red', linestyle='dashed')
         plt.plot(data[0], data[3], linewidth=2, color='blue', linestyle='-.')
-        plt.legend(['Healthy donors', 'Secretory MM patients', 'Non secretory MM patients'], fancybox=True, framealpha=1, shadow=True)
-        plt.xlabel('Wavenumber, cm$^{-1}$', fontsize=11)
-        plt.ylabel('Absorbance', fontsize=11)
+        plt.legend(['Здоровые доноры', 'Пациенты с секретирующей ММ', 'Пациенты с не секретирующей ММ'], fancybox=True,
+                   framealpha=1, shadow=True)  # Russian ver.
+        # plt.legend(['Healthy donors', 'Secretory MM patients', 'Non secretory MM patients'], fancybox=True,
+        #            framealpha=1, shadow=True)  # English ver.
+        plt.xlabel('Волновое число, см$^{-1}$', fontsize=11)  # Russian ver.
+        # plt.xlabel('Wavenumber, cm$^{-1}$', fontsize=11)  # English ver.
+        plt.ylabel('Поглощение', fontsize=11)  # Russian ver.
+        # plt.ylabel('Absorbance', fontsize=11)  # English ver.
         plt.text(1630, 1.17, 'M$_{I}$')
         plt.text(1440, 0.63, 'M$_{II}$')
         plt.text(1570, 0.38, 'M$_{S}$')
         plt.text(1520, 0.18, 'M$_{T}$')
-        plt.text(1600, 0.15, 'N$_{1}$')
-        plt.text(1530, 0.03, 'N$_{2}$')
-        plt.text(1510, 0.02, 'N$_{3}$')
-        fig.show()
+        plt.text(1600, 0.12, 'N$_{1}$')
+        plt.text(1530, 0.01, 'N$_{2}$')
+        plt.text(1510, 0.00, 'N$_{3}$')
+        #fig.show()
         if save is True:
             fig.savefig(f'fig_2_en.tiff')
             fig.savefig(f'fig_2_en.eps')

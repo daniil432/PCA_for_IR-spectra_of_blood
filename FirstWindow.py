@@ -1,9 +1,18 @@
+import PyQt5
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QFileDialog
 from SecondWindow import SecWin
 from AboutWindow import AbWin
 import sys
+from PyQt5 import QtCore, QtWidgets
+
+
+# if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
+#     PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
+    PyQt5.QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 
 class FirstWin(QMainWindow):

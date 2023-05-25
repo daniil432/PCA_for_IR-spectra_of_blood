@@ -56,7 +56,7 @@ class SecWin(QMainWindow):
         self.directory_dpt.clicked.connect(self.browseFiles)
         self.Research_name.setPlaceholderText(str(datetime.today().strftime('%Y-%m-%d_%H-%M-%S')))
         self.pathText.setPlaceholderText(f'{os.path.abspath(os.curdir)}\\input_dpt')
-        self.Diapason_choose.setPlaceholderText("1700-1600")
+        self.Diapason_choose.setPlaceholderText("1700-1400")
 
     def browseFiles(self):
         filename = QFileDialog.getExistingDirectory(self, 'Open File', '.')
@@ -105,7 +105,6 @@ class SecWin(QMainWindow):
         self.ratio_waves, self.ratio = average_res.normalize_average(ratio_waves, self.ratio)
         ratio_norm = pd.DataFrame(self.ratio)
         ratio_norm = pd.concat([ratio_norm, pd.DataFrame(self.waves)], axis=1)
-
         # Создание объектов для обработки МГК и нормализация входных данных
         pca_res = AnalyzeSpectra.PcaAnal(matrix_pca)
         pca_deriv1 = AnalyzeSpectra.PcaAnal(deriv1)
@@ -118,7 +117,8 @@ class SecWin(QMainWindow):
             pca_ratio.normalize()
 
         # Применение МГК и вывод необходимых данных
-        #pca_res.graph_single(save=False)
+        pca_res.graph_single(save=True)
+        pca_res.graph_many(save=True, filenames=self.filenames)
         self.t_matrix, self.p_matrix = pca_res.performPCA()
         self.t_matrix_d1, self.p_matrix_d1 = pca_deriv1.performPCA()
         self.t_matrix_d2, self.p_matrix_d2 = pca_deriv2.performPCA()
