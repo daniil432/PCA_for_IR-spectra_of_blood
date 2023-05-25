@@ -65,7 +65,6 @@ class AverWin(QMainWindow):
         return getattr(self, f"tab_{name}")
 
 
-
 class MplCanvasAverage(Canvas):
     def __init__(self, type_of_graph, data_len):
         dpi = 100
@@ -147,8 +146,8 @@ class RatioWidgetAverage(QtWidgets.QWidget):
         try:
             for i in range(len(_indexes)):
                 correct_errorbar(canvas.ax, barlen=0.1, errorline=_indexes[i], color=_colors[i])
-        except:
-            pass
+        except Exception as error:
+            print(error)
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(canvas)
         self.toolbar = NavigationToolbar(canvas, self)
