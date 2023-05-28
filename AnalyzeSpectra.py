@@ -197,7 +197,7 @@ class PcaAnal(object):
         plt.show()
         if save is True:
             plt.savefig(f'eigenplot_{name}.png')
-        plt.close()
+        # plt.close()
 
     def normalize(self):
         self.matrix = (self.matrix - self.matrix.mean()) / self.matrix.std()
@@ -231,6 +231,27 @@ class PcaAnal(object):
         # pca = PCA(n_components=5)
         # t_matrix = pca.fit_transform(self.matrix)
         # p_matrix = pca.components_.T
+
+        # I = len(eigenvec_c[0])
+        # J = len(eigenvec_b[0])
+        # lambda_0 = sum(self.eigenvalues)
+        # TRV = []
+        # for i in range(0, len(self.eigenvalues)):
+        #     TRV.append((1 / (I * J)) * (lambda_0 - sum(self.eigenvalues[0:i])))
+        # ERV = []
+        # for trv in TRV:
+        #     ERV.append(1 - (trv / ((1 / (I * J)) * lambda_0)))
+        #
+        # x = [i for i in range(len(self.eigenvalues))]
+        # y = TRV
+        #plt.plot(x, y, color='red', linestyle='solid', linewidth=2, marker='o', markerfacecolor='black', markersize=8)
+        # y = ERV
+        # plt.plot(x, y, color='green', linestyle='solid', linewidth=2, marker='o', markerfacecolor='black', markersize=8)
+        # plt.xlabel('номер значения')
+        # plt.ylabel('TRV, ERV')
+        # plt.title('главные компоненты\nTRV - красный\nERV - зеленый')
+        # print('[PCA]: вывожу график главных компонент...')
+        # plt.show()
         return t_matrix, p_matrix
 
     def heatmap_pca(self, matrix, slice=-1, save=False, name=''):

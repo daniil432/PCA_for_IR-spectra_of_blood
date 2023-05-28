@@ -91,13 +91,12 @@ class RatioWidgetAverage(QtWidgets.QWidget):
         list_of_keys = list(ratio_waves.keys())
         canv_size = len(ratio_waves[list_of_keys[0]][0])
         canvas = MplCanvasAverage('polar', canv_size)
-        labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$',
-                  "M$_{I}$/M$_{II}$",
-                  'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "M$_{II}$/N$_{1}$",
-                  'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{II}$/M$_{S}$",
-                  'M$_{T}$/N$_{2}$', 'N$_{2}$/N$_{3}$', "M$_{II}$/N$_{2}$",
-                  'M$_{T}$/N$_{3}$', "M$_{II}$/M$_{T}$",
-                  "M$_{II}$/N$_{3}$"]
+        labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$', "M$_{I}$/M$_{II'}$",
+                  'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "N$_{1}$/M$_{II'}$",
+                  'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{S}$/M$_{II'}$",
+                  'N$_{2}$/M$_{T}$', 'N$_{2}$/N$_{3}$', "N$_{2}$/M$_{II'}$",
+                  'M$_{T}$/N$_{3}$', "M$_{T}$/M$_{II'}$",
+                  "N$_{3}$/M$_{II'}$"]
 
         theta = np.linspace(start=0, stop=2 * np.pi, num=canv_size, endpoint=False)
         theta = np.concatenate((theta, [theta[0]]))
@@ -117,7 +116,8 @@ class RatioWidgetAverage(QtWidgets.QWidget):
         _ran = [*range(0, 360, math.floor(360 / len(labels)))]
         if len(_ran) > len(labels):
             _ran.pop(-1)
-        canvas.ax.set_thetagrids(_ran, labels, fontsize=10)
+        canvas.ax.set_thetagrids(_ran, labels, fontsize=14)
+        canvas.ax.tick_params(pad=10)
         plt.yticks(np.arange(0, 1.5, 0.2), fontsize=10)
 
         canvas.ax.legend([Line2D([0], [0], linestyle=linestyles['D'], color=colors['D'], lw=3),
@@ -162,7 +162,7 @@ class WaveWidgetAverage(QtWidgets.QWidget):
         key_len = len(ratio_waves['D'][1])
         canvas = MplCanvasAverage('errorbar', key_len)
         pos = [1/key_len + 1/key_len * 2*k for k in range(0, key_len)]
-        cat_par = ['M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II}$"]
+        cat_par = ['M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II'}$"]
         hatches = {'D': None, 'M': '.', 'N': '/', 'O': '\\', 'B': 'o', 'U': '*', }
         colors = {'D': "green", 'M': "red", 'N': "blue", 'O': "black", 'B': "orange", 'U': "purple", }
         ledend_labels = {'D': "Здоровые доноры", 'M': "Пациенты с секр. ММ", 'N': "Пациенты с не секр. ММ",
@@ -178,6 +178,7 @@ class WaveWidgetAverage(QtWidgets.QWidget):
                                      bottom=bottom[index], width=0.3, yerr=value[3][index], ecolor="black", alpha=0.6,
                                      color=colors[key], capsize=4, hatch=hatches[key], edgecolor="black", linewidth=0.1,
                                      error_kw={'elinewidth': 1})
+            canvas.ax[index].tick_params(axis='y', labelsize=14)
 
         self.vbl = QtWidgets.QVBoxLayout()
         self.vbl.addWidget(canvas)

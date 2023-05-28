@@ -56,7 +56,7 @@ class SecWin(QMainWindow):
         self.directory_dpt.clicked.connect(self.browseFiles)
         self.Research_name.setPlaceholderText(str(datetime.today().strftime('%Y-%m-%d_%H-%M-%S')))
         self.pathText.setPlaceholderText(f'{os.path.abspath(os.curdir)}\\input_dpt')
-        self.Diapason_choose.setPlaceholderText("1700-1400")
+        self.Diapason_choose.setPlaceholderText("1700-1600")
 
     def browseFiles(self):
         filename = QFileDialog.getExistingDirectory(self, 'Open File', '.')
@@ -102,6 +102,16 @@ class SecWin(QMainWindow):
         average_res = AnalyzeSpectra.AverageAnal(self.filenames)
         self.ratio, self.waves = average_res.get_waves_ratios(matrix_w_r)
         ratio_waves = average_res.calc_average(self.ratio, self.waves)
+        # saveDF = pd.DataFrame(dict([ (k,pd.Series(v)) for k,v in {"D_ratio": ratio_waves["D"][0], "D_r_error": ratio_waves["D"][2], "D_waves": ratio_waves["D"][1], "D_w_error": ratio_waves["D"][3],
+        #                        "M_ratio": ratio_waves["M"][0], "M_r_error": ratio_waves["M"][2], "M_waves": ratio_waves["M"][1], "M_w_error": ratio_waves["M"][3],
+        #                        "N_ratio": ratio_waves["N"][0], "N_r_error": ratio_waves["N"][2], "N_waves": ratio_waves["N"][1], "N_w_error": ratio_waves["N"][3], "labels": ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$',
+        #               "M$_{I}$/M$_{II}$",
+        #               'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "M$_{II}$/N$_{1}$",
+        #               'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{II}$/M$_{S}$",
+        #               'M$_{T}$/N$_{2}$', 'N$_{2}$/N$_{3}$', "M$_{II}$/N$_{2}$",
+        #               'M$_{T}$/N$_{3}$', "M$_{II}$/M$_{T}$",
+        #               "M$_{II}$/N$_{3}$", 'M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II}$"]}.items() ]))
+        # saveDF.to_excel("Ratio_waves.xlsx")
         self.ratio_waves, self.ratio = average_res.normalize_average(ratio_waves, self.ratio)
         ratio_norm = pd.DataFrame(self.ratio)
         ratio_norm = pd.concat([ratio_norm, pd.DataFrame(self.waves)], axis=1)
@@ -117,8 +127,8 @@ class SecWin(QMainWindow):
             pca_ratio.normalize()
 
         # Применение МГК и вывод необходимых данных
-        pca_res.graph_single(save=True)
-        pca_res.graph_many(save=True, filenames=self.filenames)
+        # pca_res.graph_single(save=True)
+        # pca_res.graph_many(save=True, filenames=self.filenames)
         self.t_matrix, self.p_matrix = pca_res.performPCA()
         self.t_matrix_d1, self.p_matrix_d1 = pca_deriv1.performPCA()
         self.t_matrix_d2, self.p_matrix_d2 = pca_deriv2.performPCA()
@@ -132,9 +142,9 @@ class SecWin(QMainWindow):
 
         # Отрисовка графиков собственных чисел
         if self.checkBox_eigenvals.isChecked():
-            pca_res.eigen_graph(save=self.checkBox_save.isChecked(), name='origin')
-            pca_deriv1.eigen_graph(save=self.checkBox_save.isChecked(), name='derivative_1')
-            pca_deriv2.eigen_graph(save=self.checkBox_save.isChecked(), name='derivative_2')
+            # pca_res.eigen_graph(save=self.checkBox_save.isChecked(), name='origin')
+            # pca_deriv1.eigen_graph(save=self.checkBox_save.isChecked(), name='derivative_1')
+            # pca_deriv2.eigen_graph(save=self.checkBox_save.isChecked(), name='derivative_2')
             pca_ratio.eigen_graph(save=self.checkBox_save.isChecked(), name='ratio_pca')
 
         # Отрисовка тепловых карт и графиков ГК

@@ -5,6 +5,17 @@ from PyQt5.uic import loadUi
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as Canvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+import numpy as np
+from sklearn import svm
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+import test
 
 
 class ColWin(QMainWindow):
@@ -37,6 +48,40 @@ class ColWin(QMainWindow):
         if signal == 2:
             self.label_3.setText('Введите номер столбцa:')
         self.Columns_int.returnPressed.connect(self.pushButton.click)
+
+        filenames = []
+        for i in self.filenames:
+            filenames.append(i[0])
+
+        print("spectra PC2")
+        for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
+                  GaussianNB(), LinearDiscriminantAnalysis()]:
+            acc_s = test.classifier(input_matrix=self.t_matrix_pca[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
+
+        print("spectra deriv PC2")
+        for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
+                  GaussianNB(), LinearDiscriminantAnalysis()]:
+            acc_s = test.classifier(input_matrix=self.t_matrix_der2[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
+
+        print("feachures PC1")
+        for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
+                  GaussianNB(), LinearDiscriminantAnalysis()]:
+            acc_s = test.classifier(input_matrix=self.tr_pca[:, 0], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
+
+        print("feachures PC2")
+        for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
+                  GaussianNB(), LinearDiscriminantAnalysis()]:
+            acc_s = test.classifier(input_matrix=self.tr_pca[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
+
+        print("feachures PC1-PC2")
+        for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(max_iter=1000), DecisionTreeClassifier(),
+                  GaussianNB(), LinearDiscriminantAnalysis()]:
+            acc_s = test.classifier(input_matrix=self.tr_pca[:, [0, 1]], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
 
     def closeEvent(self, event):
         self.parent.show()
@@ -111,9 +156,11 @@ class ColWin(QMainWindow):
         for key, value in samples.items():
             for index in range(len(self.filenames)):
                 self.colGraph.canvas.ax.scatter(value[0], value[1],
-                                                color=colors[key], marker=markers[key], alpha=1, zorder=10)
-            for item in range(len(value[0])):
-                self.colGraph.canvas.ax.annotate(value[-1][item], (value[0][item], value[1][item]))
+                                                color=colors[key], marker=markers[key], alpha=1, zorder=10, s=80)
+            # for item in range(len(value[0])):
+            #     self.colGraph.canvas.ax.annotate(value[-1][item], (value[0][item], value[1][item]))
+        self.colGraph.canvas.ax.tick_params(axis='both', which='major', labelsize=15)
+        self.colGraph.canvas.ax.tick_params(axis='both', which='minor', labelsize=15)
         self.colGraph.canvas.draw()
 
     def plotLoadings(self):
@@ -129,13 +176,13 @@ class ColWin(QMainWindow):
         color = ['green', 'green', 'blue', 'green', 'green', 'red', 'orange', 'blue', 'blue']
         width = [1, 1, 12.5, 1, 1, 3, 5, 2, 1, 11.5]
         if self.RatioWave_button.isChecked():
-            labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$',
-                      "M$_{I}$/M$_{II}$",
-                      'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "M$_{II}$/N$_{1}$",
-                      'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{II}$/M$_{S}$",
-                      'M$_{T}$/N$_{2}$', 'N$_{2}$/N$_{3}$', "M$_{II}$/N$_{2}$",
-                      'M$_{T}$/N$_{3}$', "M$_{II}$/M$_{T}$",
-                      "M$_{II}$/N$_{3}$", 'M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II}$"]
+            labels = ['M$_{I}$/N$_{1}$', 'M$_{I}$/M$_{S}$', 'M$_{I}$/N$_{2}$', 'M$_{I}$/M$_{T}$', 'M$_{I}$/N$_{3}$', "M$_{I}$/M$_{II'}$",
+                      'M$_{S}$/N$_{1}$', 'N$_{1}$/N$_{2}$', 'N$_{1}$/M$_{T}$', 'N$_{1}$/N$_{3}$', "N$_{1}$/M$_{II'}$",
+                      'M$_{S}$/N$_{2}$', 'M$_{S}$/M$_{T}$', 'M$_{S}$/N$_{3}$', "M$_{S}$/M$_{II'}$",
+                      'N$_{2}/M$_{T}$', 'N$_{2}$/N$_{3}$', "N$_{2}$/M$_{II'}$",
+                      'M$_{T}$/N$_{3}$', "M$_{T}$/M$_{II'}$",
+                      "N$_{3}$/M$_{II'}$",
+                      'M$_{I}$', 'N$_{1}$', 'M$_{S}$', 'N$_{2}$', 'M$_{T}$', 'N$_{3}$', "M$_{II'}$"]
             for i, txt in enumerate(labels):
                 self.colGraph.canvas.ax.annotate(txt, (xs[i], ys[i]))
 
