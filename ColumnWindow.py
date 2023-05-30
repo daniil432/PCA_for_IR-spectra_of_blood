@@ -56,32 +56,47 @@ class ColWin(QMainWindow):
         print("spectra PC2")
         for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
                   GaussianNB(), LinearDiscriminantAnalysis()]:
-            acc_s = test.classifier(input_matrix=self.t_matrix_pca[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
-            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
-
+            mean_list, std_list = test.classifier(input_matrix=self.t_matrix_pca[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision D:', mean_list[1], std_list[1], '---',
+                  'recall D:', mean_list[2], std_list[2])
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision M:', mean_list[3], std_list[3], '---',
+                  'recall M:', mean_list[4], std_list[4])
+            print("_________________________________________________________")
         print("spectra deriv PC2")
         for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
                   GaussianNB(), LinearDiscriminantAnalysis()]:
-            acc_s = test.classifier(input_matrix=self.t_matrix_der2[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
-            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
-
+            mean_list, std_list = test.classifier(input_matrix=self.t_matrix_der2[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision D:', mean_list[1], std_list[1], '---',
+                  'recall D:', mean_list[2], std_list[2])
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision M:', mean_list[3], std_list[3], '---',
+                  'recall M:', mean_list[4], std_list[4])
+            print("_________________________________________________________")
         print("feachures PC1")
         for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
                   GaussianNB(), LinearDiscriminantAnalysis()]:
-            acc_s = test.classifier(input_matrix=self.tr_pca[:, 0], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
-            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
-
+            mean_list, std_list = test.classifier(input_matrix=self.tr_pca[:, 0], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision D:', mean_list[1], std_list[1], '---',
+                  'recall D:', mean_list[2], std_list[2])
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision M:', mean_list[3], std_list[3], '---',
+                  'recall M:', mean_list[4], std_list[4])
+            print("_________________________________________________________")
         print("feachures PC2")
         for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(), DecisionTreeClassifier(),
                   GaussianNB(), LinearDiscriminantAnalysis()]:
-            acc_s = test.classifier(input_matrix=self.tr_pca[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
-            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
+            mean_list, std_list = test.classifier(input_matrix=self.tr_pca[:, 1], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision D:', mean_list[1], std_list[1], '---',
+                  'recall D:', mean_list[2], std_list[2])
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision M:', mean_list[3], std_list[3], '---',
+                  'recall M:', mean_list[4], std_list[4])
+            print("_________________________________________________________")
 
         print("feachures PC1-PC2")
         for i in [svm.SVC(), KNeighborsClassifier(n_neighbors=4), LogisticRegression(max_iter=1000), DecisionTreeClassifier(),
                   GaussianNB(), LinearDiscriminantAnalysis()]:
-            acc_s = test.classifier(input_matrix=self.tr_pca[:, [0, 1]], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
-            print(max(acc_s[0]), '---', max(acc_s[1]), '---', max(acc_s[2]))
+            mean_list, std_list = test.classifier(input_matrix=self.tr_pca[:, [0, 1]], labels=filenames, tr_s=0.8, classif=i, n_iter=100)
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision D:', mean_list[1], std_list[1], '---', 'recall D:', mean_list[2], std_list[2])
+            print('accuracy:', mean_list[0], std_list[0], '---', 'precision M:', mean_list[3], std_list[3], '---', 'recall M:', mean_list[4], std_list[4])
+            print("_________________________________________________________")
 
     def closeEvent(self, event):
         self.parent.show()
